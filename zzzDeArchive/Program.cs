@@ -110,7 +110,7 @@ namespace zzzDeArchive
             do
             {
                 Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.1 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.11 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
@@ -129,7 +129,8 @@ namespace zzzDeArchive
             bool good = false;
             do
             {
-                Console.Write("Extract zzz Screen\n" +
+                Console.Write(
+                    "     Extract zzz Screen\n" +
                     "Enter the path to zzz file: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
@@ -145,7 +146,8 @@ namespace zzzDeArchive
             _in = path;
             do
             {
-                Console.Write("Extract zzz Screen\n" +
+                Console.Write(
+                    "     Extract zzz Screen\n" +
                     "Enter the path to extract contents: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
@@ -168,7 +170,8 @@ namespace zzzDeArchive
             bool good = false;
             do
             {
-                Console.Write("Write zzz Screen\n" +
+                Console.Write(
+                    "     Write zzz Screen\n" +
                     "Enter the path of files to go into out.zzz: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
