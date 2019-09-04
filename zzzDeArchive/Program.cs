@@ -26,19 +26,29 @@ namespace zzzDeArchive
         private static void Write()
         {
             ZzzHeader head = ZzzHeader.Read(_path, out string[] f);
-
+            string path = Path.Combine(Directory.GetCurrentDirectory(), _out);
             Console.WriteLine(head);
-            using (FileStream fs = File.Create(_out))
+            using (FileStream fs = File.Create(path))
             {
                 using (BinaryWriter bw = new BinaryWriter(fs))
                 {
                     head.Write(bw);
                     foreach (string file in f)
                     {
+
                         bw.Write(File.ReadAllBytes(file));
                     }
                 }
             }
+            Console.WriteLine($"Saved to: {path}");
+            try
+            {
+                Process.Start(Path.GetDirectoryName(path));
+            }
+            catch
+            {
+            }
+
         }
 
         private static void Extract()
@@ -68,6 +78,15 @@ namespace zzzDeArchive
                         }
                     }
                 }
+            }
+            Console.WriteLine($"Saved to: {_path}");
+            try
+            {
+                Process.Start(_path);
+            }
+            catch
+            {
+
             }
         }
 
