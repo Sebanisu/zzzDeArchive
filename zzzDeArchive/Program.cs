@@ -64,7 +64,6 @@ namespace zzzDeArchive
                     //Directory.CreateDirectory(_path);
                     foreach (FileData d in head.Data)
                     {
-                        Debug.Assert(d.UnkFlag == 0);
                         Console.WriteLine($"Writing {d}");
                         string path = Path.Combine(_path, d.Filename);
                         Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -72,8 +71,12 @@ namespace zzzDeArchive
                         {
                             using (BinaryWriter bw = new BinaryWriter(fso))
                             {
-                                fs.Seek(d.Offset, SeekOrigin.Begin);
-                                bw.Write(br.ReadBytes((int)d.Size));
+                                if (d.Offset <= long.MaxValue)
+                                {
+                                    fs.Seek((long)d.Offset, SeekOrigin.Begin);
+                                    bw.Write(br.ReadBytes((int)d.Size));
+                                }
+                                else throw new ArgumentOutOfRangeException($"d.offset is too large! ({d.Offset})");
                             }
                         }
                     }
@@ -192,15 +195,18 @@ namespace zzzDeArchive
 
         #region Structs
 
+        /// <summary>
+        /// Part of header that contains info on the files.
+        /// </summary>
+        /// <see cref="https://github.com/myst6re/qt-zzz/blob/master/zzztoc.h"/>
         public struct FileData
         {
             #region Fields
 
             private byte[] filenameascii;
             public uint FilenameLength;
-            public uint Offset;
+            public ulong Offset;
             public uint Size;
-            public uint UnkFlag;
 
             #endregion Fields
 
@@ -229,8 +235,7 @@ namespace zzzDeArchive
                     FilenameLength = br.ReadUInt32()
                 };
                 r.filenameascii = br.ReadBytes((int)r.FilenameLength);
-                r.Offset = br.ReadUInt32();
-                r.UnkFlag = br.ReadUInt32();
+                r.Offset = br.ReadUInt64();
                 r.Size = br.ReadUInt32();
                 return r;
             }
@@ -250,20 +255,21 @@ namespace zzzDeArchive
                 return r;
             }
 
-            public override string ToString() => $"({Filename}, {Offset}, {UnkFlag}, {Size})";
+            public override string ToString() => $"({Filename}, {Offset}, {Size})";
 
             public void Write(BinaryWriter bw)
             {
                 bw.Write(FilenameLength);
                 bw.Write(filenameascii);
                 bw.Write(Offset);
-                bw.Write(UnkFlag);
                 bw.Write(Size);
             }
 
             #endregion Methods
         }
-
+        /// <summary>
+        /// Header for ZZZ file.
+        /// </summary>
         public struct ZzzHeader
         {
             #region Fields
