@@ -1,9 +1,13 @@
 # zzzDeArchive
-Tool to create/extract/merge zzz archives for FF8 Remastered
+This tool is used to create/extract/merge zzz archives for FF8 Remastered.</br>
+I wrote the c# code and [MakiPL](https://github.com/MaKiPL) did the reversing of the zzz format.
 
-When you run the EXE it'll give you prompts for paths to files or folders. Just follow the prompts and you should have no issue.
+The __Releases__ are for __Windows__ but the source should compile on __mono__ just fine.</br> Uses the `System.ValueTuple` NuGet package.
 
-There is some minor command line support as well.
+When you run the __zzzDeArchive.exe__ it'll show a menu. Just follow the prompts and you should have no issue.<p align="center">
+![Main menu image](https://raw.githubusercontent.com/Sebanisu/zzzDeArchive/master/img/mainmenu.png)</p>
+
+There is some command line support as well.
 
 Extract zzz to folder.<br/>
 `zzzDeArchive "path to zzz file" "path to folder"`
@@ -13,3 +17,5 @@ Write folder to __out.zzz__.<br/>
 
 Merge two zzz files to __out.zzz__.<br/>
 `zzzDeArchive "path to zzz with new data" "path to zzz with old data"`
+
+See similar project: [qt-zzz](https://github.com/myst6re/qt-zzz)
