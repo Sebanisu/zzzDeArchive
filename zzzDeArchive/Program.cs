@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace zzzDeArchive
         private const string _out = @"out.zzz";
         private static string _path;
         private static string _in;
+
+        public static List<string> Args { get; private set; }
 
         //private const string _path = @"D:\ext";
 
@@ -35,7 +38,6 @@ namespace zzzDeArchive
                     head.Write(bw);
                     foreach (string file in f)
                     {
-
                         bw.Write(File.ReadAllBytes(file));
                     }
                 }
@@ -48,7 +50,6 @@ namespace zzzDeArchive
             catch
             {
             }
-
         }
 
         private static void Extract()
@@ -89,22 +90,44 @@ namespace zzzDeArchive
             }
             catch
             {
-
             }
         }
 
         private static void Main(string[] args)
         {
-            ConsoleKeyInfo k = MainMenu();
-            if (k.Key == ConsoleKey.D1 || k.Key == ConsoleKey.NumPad1)
+            Args = new List<string>(args);
+            Args.ForEach(x => x.Trim('"'));
+            if (Args.Count == 2 && File.Exists(Args[0]))
             {
-                ExtractMenu();
+                Directory.CreateDirectory(Args[1]);
+                if (Directory.Exists(Args[1]))
+                {
+                    _in = Args[0];
+                    _path = Args[1];
+                    Extract();
+                }
+                else
+                    Console.WriteLine("Invalid Directory");
             }
-            else if (k.Key == ConsoleKey.D2 || k.Key == ConsoleKey.NumPad2)
+            else if (Args.Count == 1 && Directory.Exists(Args[0]))
             {
-                WriteMenu();
+                _path = Args[0];
+                Write();
             }
-            //Console.ReadLine();
+            else
+            {
+                ConsoleKeyInfo k = MainMenu();
+                if (k.Key == ConsoleKey.D1 || k.Key == ConsoleKey.NumPad1)
+                {
+                    ExtractMenu();
+                }
+                else if (k.Key == ConsoleKey.D2 || k.Key == ConsoleKey.NumPad2)
+                {
+                    WriteMenu();
+                }
+                Console.WriteLine("\nPress any key to exit...");
+                Console.ReadKey();
+            }
         }
 
         private static ConsoleKeyInfo MainMenu()
@@ -124,7 +147,6 @@ namespace zzzDeArchive
             while (k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2);
             return k;
         }
-
 
         private static void ExtractMenu()
         {
@@ -203,7 +225,7 @@ namespace zzzDeArchive
         {
             #region Fields
 
-            private byte[] filenameascii;
+            private byte[] filenamebytes;
             public uint FilenameLength;
             public ulong Offset;
             public uint Size;
@@ -212,13 +234,19 @@ namespace zzzDeArchive
 
             #region Properties
 
-            //Boolean
+            /// <summary>
+            /// Decode/Encode the filename string as bytes.
+            /// </summary>
+            /// <remarks>
+            /// Could be Ascii or UTF8, I see no special characters and the first like 127 of UTF8 is
+            /// the same as Ascii.
+            /// </remarks>
             public string Filename
             {
-                get => Encoding.ASCII.GetString(filenameascii); set
+                get => Encoding.UTF8.GetString(filenamebytes); set
                 {
-                    filenameascii = Encoding.ASCII.GetBytes(value);
-                    FilenameLength = (uint)filenameascii.Length;
+                    filenamebytes = Encoding.UTF8.GetBytes(value);
+                    FilenameLength = (uint)filenamebytes.Length;
                 }
             }
 
@@ -227,14 +255,17 @@ namespace zzzDeArchive
             #endregion Properties
 
             #region Methods
-
+            //static readonly char[] invalid = Path.GetInvalidPathChars();
             public static FileData Read(BinaryReader br)
             {
                 FileData r = new FileData
                 {
                     FilenameLength = br.ReadUInt32()
                 };
-                r.filenameascii = br.ReadBytes((int)r.FilenameLength);
+                r.filenamebytes = br.ReadBytes((int)r.FilenameLength);
+                //var tmp = r.Filename.Where(x => invalid.Contains(x));
+                //if (tmp.Count() > 0)
+                //    throw new InvalidDataException($"String ({r.Filename}) contains invalid characters! ({tmp})");
                 r.Offset = br.ReadUInt64();
                 r.Size = br.ReadUInt32();
                 return r;
@@ -260,13 +291,14 @@ namespace zzzDeArchive
             public void Write(BinaryWriter bw)
             {
                 bw.Write(FilenameLength);
-                bw.Write(filenameascii);
+                bw.Write(filenamebytes);
                 bw.Write(Offset);
                 bw.Write(Size);
             }
 
             #endregion Methods
         }
+
         /// <summary>
         /// Header for ZZZ file.
         /// </summary>
