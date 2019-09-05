@@ -9,50 +9,20 @@ namespace zzzDeArchive
 {
     public class Program
     {
-        #region Fields
-
         //private const string _in = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\main.zzz.old";
         //private const string _in = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\other.zzz";
 
+        #region Fields
+
         private const string _out = @"out.zzz";
-        private static string _path;
         private static string _in;
-
-        public static List<string> Args { get; private set; }
-
-        //private const string _path = @"D:\ext";
+        private static string _path;
 
         #endregion Fields
 
         #region Methods
 
-        private static void Write()
-        {
-            ZzzHeader head = ZzzHeader.Read(_path, out string[] f);
-            string path = Path.Combine(Directory.GetCurrentDirectory(), _out);
-            Console.WriteLine(head);
-            using (FileStream fs = File.Create(path))
-            {
-                using (BinaryWriter bw = new BinaryWriter(fs))
-                {
-                    head.Write(bw);
-                    foreach (string file in f)
-                    {
-                        bw.Write(File.ReadAllBytes(file));
-                    }
-                }
-            }
-            Console.WriteLine($"Saved to: {path}");
-            try
-            {
-                Process.Start(Path.GetDirectoryName(path));
-            }
-            catch
-            {
-            }
-        }
-
-        private static void Extract()
+        private static string Extract()
         {
             ZzzHeader head;
             using (FileStream fs = File.OpenRead(_in))
@@ -84,20 +54,63 @@ namespace zzzDeArchive
                 }
             }
             Console.WriteLine($"Saved to: {_path}");
-            try
+            return _path;
+        }
+
+        private static string ExtractMenu()
+        {
+            string path;
+            bool good = false;
+            const string title = "\n     Extract zzz Screen\n";
+            do
             {
-                Process.Start(_path);
+                Console.Write(
+                    title +
+                    "Enter the path to zzz file: ");
+                path = Console.ReadLine();
+                path = path.Trim('"');
+                path = path.Trim();
+                Console.WriteLine();
+                good = File.Exists(path);
+                if (!good)
+                    Console.WriteLine("File doesn't exist\n");
+                else break;
             }
-            catch
+            while (true);
+
+            _in = path;
+            do
             {
+                Console.Write(
+                    title +
+                    "Enter the path to extract contents: ");
+                path = Console.ReadLine();
+                path = path.Trim('"');
+                path = path.Trim();
+                Console.WriteLine();
+                Directory.CreateDirectory(path);
+                good = Directory.Exists(path);
+                if (!good)
+                    Console.WriteLine("Directory doesn't exist\n");
+                else break;
             }
+            while (true);
+            _path = path;
+            return Extract();
         }
 
         private static void Main(string[] args)
         {
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count == 2 && File.Exists(Args[0]))
+            if (Args.Count == 2 && File.Exists(Args[0]) && File.Exists(Args[1]))
+            {
+                //merge
+                _in = Args[0];
+                _path = Args[1];
+                Merge();
+            }
+            else if (Args.Count == 2 && File.Exists(Args[0]))
             {
                 Directory.CreateDirectory(Args[1]);
                 if (Directory.Exists(Args[1]))
@@ -119,14 +132,29 @@ namespace zzzDeArchive
                 ConsoleKeyInfo k = MainMenu();
                 if (k.Key == ConsoleKey.D1 || k.Key == ConsoleKey.NumPad1)
                 {
-                    ExtractMenu();
+                    openfolder(ExtractMenu());
                 }
                 else if (k.Key == ConsoleKey.D2 || k.Key == ConsoleKey.NumPad2)
                 {
-                    WriteMenu();
+                    openfolder(WriteMenu());
+                }
+                else if (k.Key == ConsoleKey.D3 || k.Key == ConsoleKey.NumPad3)
+                {
+                    openfolder(MergeMenu());
                 }
                 Console.WriteLine("\nPress any key to exit...");
                 Console.ReadKey();
+            }
+            void openfolder(string folder)
+            {
+                try
+                {
+                    if (Directory.Exists(folder))
+                        Process.Start(folder);
+                }
+                catch
+                {
+                }
             }
         }
 
@@ -140,23 +168,59 @@ namespace zzzDeArchive
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
+                    "3) Merge - Write unique data from two zzz files into one zzz file.\n" +
                     "  Select: ");
                 k = Console.ReadKey();
                 Console.WriteLine();
             }
-            while (k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2);
+            while (k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
             return k;
         }
 
-        private static void ExtractMenu()
+        private static string Merge()
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(), _out);
+            (BinaryReader _in, BinaryReader _out) br;
+            using (br._in = new BinaryReader(File.OpenRead(_in)))
+            using (br._out = new BinaryReader(File.OpenRead(_path)))
+            {
+                (ZzzHeader _in, ZzzHeader _out) head = (ZzzHeader.Read(br._in), ZzzHeader.Read(br._out));
+                (ZzzHeader head, BinaryWriter bw) merged;
+                merged.head = ZzzHeader.Merge(head._in, head._out);
+                using (merged.bw = new BinaryWriter(File.Create(path)))
+                {
+                    merged.head.Write(merged.bw);
+
+                    Console.WriteLine($"Writing raw file data from {_path}");
+                    Write(br._out, head._out.Data);
+                    Console.WriteLine($"Writing raw file data from {_in}");
+                    Write(br._in, head._in.Data);
+
+                    void Write(BinaryReader _br, FileData[] data)
+                    {
+                        foreach (FileData i in data)
+                        {
+                            _br.BaseStream.Seek((int)i.Offset, SeekOrigin.Begin);
+                            Console.WriteLine($"Writing {i.Filename} {i.Size} bytes");
+                            merged.bw.Write(_br.ReadBytes((int)i.Size));
+                        }
+                    }
+                }
+            }
+            return Path.GetDirectoryName(path);
+        }
+
+        private static string MergeMenu()
         {
             string path;
             bool good = false;
+            const string title = "\n     Merge zzz Screen\n";
             do
             {
                 Console.Write(
-                    "     Extract zzz Screen\n" +
-                    "Enter the path to zzz file: ");
+                    title +
+                    "  Only unchanged data will be kept, rest will be replaced...\n" +
+                    "Enter the path to zzz file with new data: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
@@ -172,31 +236,54 @@ namespace zzzDeArchive
             do
             {
                 Console.Write(
-                    "     Extract zzz Screen\n" +
-                    "Enter the path to extract contents: ");
+                    title +
+                    "Enter the path to zzz file with old data: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
-                Directory.CreateDirectory(path);
-                good = Directory.Exists(path);
+                good = File.Exists(path);
                 if (!good)
-                    Console.WriteLine("Directory doesn't exist\n");
+                    Console.WriteLine("File doesn't exist\n");
                 else break;
             }
             while (true);
             _path = path;
-            Extract();
+            return Merge();
         }
 
-        private static void WriteMenu()
+        private static string Write()
+        {
+            ZzzHeader head = ZzzHeader.Read(_path, out string[] f);
+            string path = Path.Combine(Directory.GetCurrentDirectory(), _out);
+            Console.WriteLine(head);
+            using (FileStream fs = File.Create(path))
+            {
+                using (BinaryWriter bw = new BinaryWriter(fs))
+                {
+                    head.Write(bw);
+                    Console.WriteLine($"Writing raw file data from {_path}");
+                    foreach (string file in f)
+                    {
+                        FileInfo fi = new FileInfo(file);
+                        Console.WriteLine($"Writing {file} {fi.Length} bytes");
+                        bw.Write(File.ReadAllBytes(file));
+                    }
+                }
+            }
+            Console.WriteLine($"Saved to: {path}");
+            return Path.GetDirectoryName(path);
+        }
+
+        //private const string _path = @"D:\ext";
+        private static string WriteMenu()
         {
             string path;
             bool good = false;
             do
             {
                 Console.Write(
-                    "     Write zzz Screen\n" +
+                    "\n     Write zzz Screen\n" +
                     "Enter the path of files to go into out.zzz: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
@@ -210,10 +297,16 @@ namespace zzzDeArchive
             while (true);
 
             _path = path;
-            Write();
+            return Write();
         }
 
         #endregion Methods
+
+        #region Properties
+
+        public static List<string> Args { get; private set; }
+
+        #endregion Properties
 
         #region Structs
 
@@ -255,6 +348,7 @@ namespace zzzDeArchive
             #endregion Properties
 
             #region Methods
+
             //static readonly char[] invalid = Path.GetInvalidPathChars();
             public static FileData Read(BinaryReader br)
             {
@@ -319,6 +413,41 @@ namespace zzzDeArchive
 
             #region Methods
 
+            /// <summary>
+            /// Create a new header that contains data not replaced from old file and replaced data
+            /// from new file; This will modify out header to remove any files that are being replaced.
+            /// </summary>
+            /// <param name="in">in files header</param>
+            /// <param name="out">
+            /// out files header, This will modify out to remove any files that are being replaced.
+            /// </param>
+            /// <returns>merged header</returns>
+            public static ZzzHeader Merge(ZzzHeader @in, ZzzHeader @out)
+            {
+                ZzzHeader r;
+                List<FileData> data = new List<FileData>((int)@out.Count);
+                // grab the files that are unique to @out. Replacing that bit of the header
+                @out.Data = @out.Data.Where(x => @in.Data.Where(y => y.Filename.Equals(x.Filename, StringComparison.OrdinalIgnoreCase)).Count() == 0).ToArray();
+                @out.Count = (uint)@out.Data.Length;
+                foreach (FileData i in @out.Data)
+                {
+                    data.Add(i);
+                }
+                foreach (FileData i in @in.Data)
+                {
+                    data.Add(i);
+                }
+                r.Count = (uint)data.Count();
+                r.Data = data.ToArray();
+                ulong offset = (ulong)r.TotalBytes;
+                for (int i = 0; i < r.Count; i++)
+                {
+                    r.Data[i].Offset = offset;
+                    offset += r.Data[i].Size;
+                }
+                return r;
+            }
+
             public static ZzzHeader Read(BinaryReader br)
             {
                 ZzzHeader r = new ZzzHeader
@@ -365,9 +494,10 @@ namespace zzzDeArchive
                 bw.Write(Count);
                 foreach (FileData r in Data)
                 {
-                    Console.WriteLine($"Writing {r}");
+                    Console.WriteLine($"Writing FileData {r}");
                     r.Write(bw);
                 }
+                Console.WriteLine($"Header data written {TotalBytes} bytes");
             }
 
             #endregion Methods
