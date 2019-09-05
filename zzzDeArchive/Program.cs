@@ -164,7 +164,7 @@ namespace zzzDeArchive
             do
             {
                 Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.11 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.1.5 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
@@ -172,6 +172,8 @@ namespace zzzDeArchive
                     "  Select: ");
                 k = Console.ReadKey();
                 Console.WriteLine();
+                if (k.Key == ConsoleKey.Escape)
+                    Environment.Exit(0);
             }
             while (k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
             return k;
