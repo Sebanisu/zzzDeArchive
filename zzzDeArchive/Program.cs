@@ -188,7 +188,10 @@ namespace zzzDeArchive
             {
                 (ZzzHeader _in, ZzzHeader _out) head = (ZzzHeader.Read(br._in), ZzzHeader.Read(br._out));
                 (ZzzHeader head, BinaryWriter bw) merged;
-                merged.head = ZzzHeader.Merge(head._in, head._out);
+
+                Debug.Assert(head._in.Data.Last().Size + head._in.Data.Last().Offset == (ulong)br._in.BaseStream.Length);
+                Debug.Assert(head._out.Data.Last().Size + head._out.Data.Last().Offset == (ulong)br._out.BaseStream.Length);
+                merged.head = ZzzHeader.Merge(head._in, ref head._out);
                 using (merged.bw = new BinaryWriter(File.Create(path)))
                 {
                     merged.head.Write(merged.bw);
@@ -207,6 +210,7 @@ namespace zzzDeArchive
                             merged.bw.Write(_br.ReadBytes((int)i.Size));
                         }
                     }
+                    Debug.Assert(merged.head.Data.Last().Size + merged.head.Data.Last().Offset == (ulong)merged.bw.BaseStream.Length);
                 }
                 Console.WriteLine($"Saved to: {path}");
             }
@@ -425,7 +429,7 @@ namespace zzzDeArchive
             /// out files header, This will modify out to remove any files that are being replaced.
             /// </param>
             /// <returns>merged header</returns>
-            public static ZzzHeader Merge(ZzzHeader @in, ZzzHeader @out)
+            public static ZzzHeader Merge(ZzzHeader @in, ref ZzzHeader @out)
             {
                 ZzzHeader r;
                 List<FileData> data = new List<FileData>((int)@out.Count);
