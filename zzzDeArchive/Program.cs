@@ -164,7 +164,7 @@ namespace zzzDeArchive
             do
             {
                 Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.1.5.1 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.1.5.2 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
