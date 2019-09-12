@@ -25,7 +25,7 @@ namespace zzzDeArchive
         private static string Extract()
         {
             ZzzHeader head;
-            using (FileStream fs = File.OpenRead(_in))
+            using (FileStream fs = File.Open(_in,FileMode.Open,FileAccess.Read, FileShare.ReadWrite))
             {
                 using (BinaryReader br = new BinaryReader(fs))
                 {
@@ -164,7 +164,7 @@ namespace zzzDeArchive
             do
             {
                 Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.1.5.2 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.1.5.3 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
@@ -183,8 +183,8 @@ namespace zzzDeArchive
         {
             string path = Path.Combine(Directory.GetCurrentDirectory(), _out);
             (BinaryReader _in, BinaryReader _out) br;
-            using (br._in = new BinaryReader(File.OpenRead(_in)))
-            using (br._out = new BinaryReader(File.OpenRead(_path)))
+            using (br._in = new BinaryReader(File.Open(_in, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            using (br._out = new BinaryReader(File.Open(_path, FileMode.Open, FileAccess.Read,FileShare.ReadWrite)))
             {
                 (ZzzHeader _in, ZzzHeader _out) head = (ZzzHeader.Read(br._in), ZzzHeader.Read(br._out));
                 (ZzzHeader head, BinaryWriter bw) merged;
@@ -274,7 +274,8 @@ namespace zzzDeArchive
                     {
                         FileInfo fi = new FileInfo(file);
                         Console.WriteLine($"Writing {file} {fi.Length} bytes");
-                        bw.Write(File.ReadAllBytes(file));
+                        using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                            bw.Write(br.ReadBytes((int)br.BaseStream.Length));
                     }
                 }
             }
