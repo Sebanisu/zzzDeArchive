@@ -342,7 +342,15 @@ namespace zzzDeArchive
                         FileInfo fi = new FileInfo(file);
                         Console.WriteLine($"Writing {file} {fi.Length} bytes");
                         using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
-                            bw.Write(br.ReadBytes((int)br.BaseStream.Length));
+                        {
+                            byte[] buffer;
+                            do
+                            {
+                                buffer = br.ReadBytes((int)br.BaseStream.Length);
+                                bw.Write(buffer);
+                            }
+                            while (buffer.Length > 0);
+                        }
                     }
 
                     Console.WriteLine($"Saved to: {path}");
@@ -368,7 +376,9 @@ namespace zzzDeArchive
                             byte[] isha = null;
                             string testpath = Path.Combine(_path, item.Filename);
                             using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
-                                isha = sha.ComputeHash(br2.ReadBytes((int)br2.BaseStream.Length));
+                            {
+                                isha = sha.ComputeHash(br2.BaseStream);
+                            }
                             if (isha == null)
                             {
                                 throw new Exception($"failed to verify ({testpath}) sha1 value is null");
@@ -554,7 +564,10 @@ namespace zzzDeArchive
 
                 }
                 Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
-                @out.Count = @out.Data.Length;
+                @out.Count = out2.Count;
+                @out.Data = out2.ToArray();
+
+
                 foreach (FileData i in @out.Data)
                 {
                     data.Add(i);
