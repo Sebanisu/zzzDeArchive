@@ -72,6 +72,7 @@ namespace zzzDeArchive
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
+                path = Path.GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
                     Console.WriteLine("File doesn't exist\n");
@@ -88,6 +89,7 @@ namespace zzzDeArchive
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
+                path = Path.GetFullPath(path);
                 Console.WriteLine();
                 Directory.CreateDirectory(path);
                 good = Directory.Exists(path);
@@ -105,15 +107,16 @@ namespace zzzDeArchive
             sha = new SHA1CryptoServiceProvider();
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count == 2 && File.Exists(Args[0]) && File.Exists(Args[1]))
+            if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])) && File.Exists(Args[1] = Path.GetFullPath(Args[1])))
             {
                 //merge
                 _in = Args[0];
                 _path = Args[1];
                 Merge();
             }
-            else if (Args.Count == 2 && File.Exists(Args[0]))
+            else if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
+                Args[1] = Path.GetFullPath(Args[1]);
                 Directory.CreateDirectory(Args[1]);
                 if (Directory.Exists(Args[1]))
                 {
@@ -124,7 +127,7 @@ namespace zzzDeArchive
                 else
                     Console.WriteLine("Invalid Directory");
             }
-            else if (Args.Count == 1 && Directory.Exists(Args[0]))
+            else if (Args.Count == 1 && Directory.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
                 _path = Args[0];
                 Write();
@@ -151,6 +154,7 @@ namespace zzzDeArchive
             {
                 try
                 {
+                    folder = Path.GetFullPath(folder);
                     if (Directory.Exists(folder))
                         Process.Start(folder);
                 }
@@ -235,7 +239,7 @@ namespace zzzDeArchive
                         fs.Seek(item.Offset, SeekOrigin.Begin);
                         byte[] osha = sha.ComputeHash(merged.br.ReadBytes(item.Size));
                         byte[] isha = null;
-                        var tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename));
+                        FileData tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename));
                         string src;
                         if (tmphead.Equals(new FileData()))
                         {
@@ -297,6 +301,7 @@ namespace zzzDeArchive
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
+                path = Path.GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
                     Console.WriteLine("File doesn't exist\n");
@@ -314,6 +319,7 @@ namespace zzzDeArchive
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
+                path = Path.GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
                     Console.WriteLine("File doesn't exist\n");
@@ -557,16 +563,14 @@ namespace zzzDeArchive
                 List<FileData> out2 = new List<FileData>(@out.Data);
                 // grab the files that are unique to @out. Replacing that bit of the header
                 Console.WriteLine("Eliminating Duplicates...");
-                for(int i = 0;i<out2.Count; i++)
+                for (int i = 0; i < out2.Count; i++)
                 {
                     if (@in.Data.Any(x => x.Filename == out2[i].Filename))
                         out2.RemoveAt(i--);
-
                 }
                 Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
                 @out.Count = out2.Count;
                 @out.Data = out2.ToArray();
-
 
                 foreach (FileData i in @out.Data)
                 {
