@@ -19,3 +19,5 @@ Merge two zzz files to __out.zzz__.<br/>
 `zzzDeArchive "path to zzz with new data" "path to zzz with old data"`
 
 See similar project: [qt-zzz](https://github.com/myst6re/qt-zzz)
+
+Fourm link: [Qhimm](http://forums.qhimm.com/index.php?topic=19209.msg267708#msg267708)
