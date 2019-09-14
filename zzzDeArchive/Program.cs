@@ -147,6 +147,10 @@ namespace zzzDeArchive
                 {
                     openfolder(MergeMenu());
                 }
+                else if(k.Key == ConsoleKey.T)
+                {
+                    TestMenu();
+                }
                 Console.WriteLine("\nPress any key to exit...");
                 Console.ReadKey();
             }
@@ -164,13 +168,47 @@ namespace zzzDeArchive
             }
         }
 
+        private static void TestMenu()
+        {
+            string path;
+            bool good = false;
+            do
+            {
+                Console.Write(
+                    "\n  Test Writes zzz Debug Screen\n" +
+                    "Warning! this is a test screen\n" +
+                    "This will keep making zzz files till it's done or errors\n" +
+                    "Enter the path of files to go into out.zzz: ");
+                path = Console.ReadLine();
+                path = path.Trim('"');
+                path = path.Trim();
+                Console.WriteLine();
+                path = Path.GetFullPath(path);
+                good = Directory.Exists(path);
+                if (!good)
+                    Console.WriteLine("Directory doesn't exist\n");
+                else break;
+            }
+            while (true);
+            LoadSubDirs(path);
+            void LoadSubDirs(string dir)
+            {
+                Console.WriteLine($"Testing: {dir}\n");
+                string[] subdirectoryEntries = Directory.GetDirectories(dir);
+                _path = dir;
+                Write();
+                foreach (string subdir in subdirectoryEntries)
+                    LoadSubDirs(subdir);
+            }
+        }
+
         private static ConsoleKeyInfo MainMenu()
         {
             ConsoleKeyInfo k;
             do
             {
                 Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.1.5.3 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.1.6.0 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
@@ -181,7 +219,7 @@ namespace zzzDeArchive
                 if (k.Key == ConsoleKey.Escape)
                     Environment.Exit(0);
             }
-            while (k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
+            while (k.Key != ConsoleKey.T && k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
             return k;
         }
 
@@ -239,12 +277,12 @@ namespace zzzDeArchive
                         fs.Seek(item.Offset, SeekOrigin.Begin);
                         byte[] osha = sha.ComputeHash(merged.br.ReadBytes(item.Size));
                         byte[] isha = null;
-                        FileData tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename));
+                        FileData tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
                         string src;
                         if (tmphead.Equals(new FileData()))
                         {
                             src = _path;
-                            tmphead = head._out.Data.First(x => x.Filename.Equals(item.Filename));
+                            tmphead = head._out.Data.First(x => x.Filename.Equals(item.Filename,StringComparison.OrdinalIgnoreCase));
                             br._out.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
                             isha = sha.ComputeHash(br._out.ReadBytes(tmphead.Size));
                         }
@@ -421,6 +459,7 @@ namespace zzzDeArchive
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
+                path = Path.GetFullPath(path);
                 good = Directory.Exists(path);
                 if (!good)
                     Console.WriteLine("Directory doesn't exist\n");
@@ -565,7 +604,7 @@ namespace zzzDeArchive
                 Console.WriteLine("Eliminating Duplicates...");
                 for (int i = 0; i < out2.Count; i++)
                 {
-                    if (@in.Data.Any(x => x.Filename == out2[i].Filename))
+                    if (@in.Data.Any(x => x.Filename.Equals(out2[i].Filename, StringComparison.OrdinalIgnoreCase)))
                         out2.RemoveAt(i--);
                 }
                 Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
