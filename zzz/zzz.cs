@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Zzz
 { /// <summary>
-  /// Part of header that contains info on the files.
-  /// </summary>
-  /// <see cref="https://github.com/myst6re/qt-zzz/blob/master/zzztoc.h"/>
+  /// Part of header that contains info on the files. </summary> <see cref="https://github.com/myst6re/qt-zzz/blob/master/zzztoc.h"/>
     public struct FileData
     {
         #region Fields
@@ -26,8 +25,8 @@ namespace Zzz
         /// Decode/Encode the filename string as bytes.
         /// </summary>
         /// <remarks>
-        /// Could be Ascii or UTF8, I see no special characters and the first like 127 of UTF8 is
-        /// the same as Ascii.
+        /// Could be Ascii or UTF8, I see no special characters and the first like 127 of UTF8 is the
+        /// same as Ascii.
         /// </remarks>
         public string Filename
         {
@@ -111,15 +110,15 @@ namespace Zzz
         #region Methods
 
         /// <summary>
-        /// Create a new header that contains data not replaced from old file and replaced data
-        /// from new file; This will modify out header to remove any files that are being replaced.
+        /// Create a new header that contains data not replaced from old file and replaced data from
+        /// new file; This will modify out header to remove any files that are being replaced.
         /// </summary>
         /// <param name="in">in files header</param>
         /// <param name="out">
         /// out files header, This will modify out to remove any files that are being replaced.
         /// </param>
         /// <returns>merged header</returns>
-        public static  ZzzHeader Merge(ZzzHeader @in, ref ZzzHeader @out)
+        public static ZzzHeader Merge(ZzzHeader @in, ref ZzzHeader @out)
         {
             Console.WriteLine("Merging Headers");
             ZzzHeader r;
@@ -213,10 +212,253 @@ namespace Zzz
 
         #endregion Methods
     }
+
     public class Zzz
     {
+        #region Fields
+
+        private static HashAlgorithm sha;
+        private string _in;
+        private string _out;
         private string _path;
 
-       
+        public string Path { get => _path; set => _path = value; }
+        public string Out { get {
+                if (string.IsNullOrWhiteSpace(_out))
+                    return @"out.zzz";
+                return _out; } set => _out = value; }
+        public string In { get => _in; set => _in = value; }
+
+        #endregion Fields
+
+        #region Methods
+
+        private static void TestSize(ZzzHeader head, Stream stream)
+        {
+            if (head.ExpectedFileSize != stream.Length)
+            {
+                throw new Exception($"expected filesize ({head.ExpectedFileSize}) != resulting filesize ({stream.Length})");
+            }
+        }
+
+        #endregion Methods
+
+        #region Constructors
+        public Zzz()
+        {
+
+            sha = new SHA1CryptoServiceProvider();
+        }
+        public Zzz(string path, string @in, string @out = null)
+        {
+            sha = new SHA1CryptoServiceProvider();
+            Path = path;
+            Out = @out;
+            In = @in;
+        }
+
+        #endregion Constructors
+
+        public string Extract()
+        {
+            ZzzHeader head;
+            using (FileStream fs = File.Open(In, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (BinaryReader br = new BinaryReader(fs))
+                {
+                    head = ZzzHeader.Read(br);
+                    Console.WriteLine(head);
+
+                    //Directory.CreateDirectory(_path);
+                    foreach (FileData d in head.Data)
+                    {
+                        Console.WriteLine($"Writing {d}");
+                        string path = System.IO.Path.Combine(Path, d.Filename);
+                        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+                        using (FileStream fso = File.Create(path))
+                        {
+                            using (BinaryWriter bw = new BinaryWriter(fso))
+                            {
+                                if (d.Offset <= long.MaxValue)
+                                {
+                                    fs.Seek(d.Offset, SeekOrigin.Begin);
+                                    bw.Write(br.ReadBytes(d.Size));
+                                }
+                                else throw new ArgumentOutOfRangeException($"d.offset is too large! ({d.Offset})");
+                            }
+                        }
+                    }
+                }
+            }
+            Console.WriteLine($"Saved to: {Path}");
+            return Path;
+        }
+
+        public string Merge()
+        {
+            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
+            (BinaryReader _in, BinaryReader _out) br;
+            using (br._in = new BinaryReader(File.Open(In, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            using (br._out = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            {
+                (ZzzHeader _in, ZzzHeader _out) head = (ZzzHeader.Read(br._in), ZzzHeader.Read(br._out));
+                (ZzzHeader head, BinaryWriter bw, BinaryReader br) merged;
+
+                TestSize(head._in, br._in.BaseStream);
+                TestSize(head._out, br._out.BaseStream);
+                merged.head = ZzzHeader.Merge(head._in, ref head._out);
+
+                using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
+                using (merged.bw = new BinaryWriter(fs))
+                using (merged.br = new BinaryReader(fs))
+                {
+                    merged.head.Write(merged.bw);
+                    Console.WriteLine($"Writing raw file data from {Path}");
+                    Write(br._out, head._out.Data);
+                    Console.WriteLine($"Writing raw file data from {In}");
+                    Write(br._in, head._in.Data);
+
+                    void Write(BinaryReader _br, FileData[] data)
+                    {
+                        foreach (FileData i in data)
+                        {
+                            _br.BaseStream.Seek((int)i.Offset, SeekOrigin.Begin);
+                            Console.WriteLine($"Writing {i.Filename} {i.Size} bytes");
+                            merged.bw.Write(_br.ReadBytes(i.Size));
+                        }
+                    }
+                    Console.WriteLine($"Saved to: {path}");
+                    Console.WriteLine($"Verifing output");
+                    TestSize(merged.head, merged.bw.BaseStream);
+
+                    foreach (FileData item in merged.head.Data)
+                    {
+                        if (item.Offset > fs.Length)
+                        {
+                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                "offset: {item.Offset}");
+                        }
+                        if (item.Offset + item.Size > fs.Length)
+                        {
+                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                "offset: {item.Offset}\n" +
+                                "size: {item.Size}");
+                        }
+                        fs.Seek(item.Offset, SeekOrigin.Begin);
+                        byte[] osha = sha.ComputeHash(merged.br.ReadBytes(item.Size));
+                        byte[] isha = null;
+                        FileData tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
+                        string src;
+                        if (tmphead.Equals(new FileData()))
+                        {
+                            src = Path;
+                            tmphead = head._out.Data.First(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
+                            br._out.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
+                            isha = sha.ComputeHash(br._out.ReadBytes(tmphead.Size));
+                        }
+                        else
+                        {
+                            src = In;
+                            br._in.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
+                            isha = sha.ComputeHash(br._in.ReadBytes(tmphead.Size));
+                        }
+                        if (isha == null)
+                        {
+                            throw new Exception($"failed to verify ({item.Filename}) sha1 value is null");
+                        }
+                        else if (!isha.SequenceEqual(osha))
+                        {
+                            throw new Exception($"failed to verify ({item.Filename}) sha1 mismatch \n" +
+                                $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
+                                $"merged offset: {item.Offset}\n" +
+                                $"merged size:   {item.Size}\n" +
+                                $"source:        {src}\n" +
+                                $"source offset: {tmphead.Offset}\n" +
+                                $"source size:   {tmphead.Size}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Verified ({item.Filename}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                        }
+                    }
+                }
+            }
+            return System.IO.Path.GetDirectoryName(path);
+        }
+
+        public string Write()
+        {
+            ZzzHeader head = ZzzHeader.Read(Path, out string[] files, Path);
+            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
+            Console.WriteLine(head);
+            using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
+            {
+                using (BinaryWriter bw = new BinaryWriter(fs))
+                {
+                    head.Write(bw);
+                    Console.WriteLine($"Writing raw file data from {Path}");
+                    foreach (string file in files)
+                    {
+                        FileInfo fi = new FileInfo(file);
+                        Console.WriteLine($"Writing {file} {fi.Length} bytes");
+                        using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                        {
+                            byte[] buffer;
+                            do
+                            {
+                                buffer = br.ReadBytes((int)br.BaseStream.Length);
+                                bw.Write(buffer);
+                            }
+                            while (buffer.Length > 0);
+                        }
+                    }
+
+                    Console.WriteLine($"Saved to: {path}");
+                    Console.WriteLine($"Verifing output");
+                    TestSize(head, bw.BaseStream);
+                    using (BinaryReader br = new BinaryReader(fs))
+                    {
+                        foreach (FileData item in head.Data)
+                        {
+                            if (item.Offset > fs.Length)
+                            {
+                                throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                    "offset: {item.Offset}");
+                            }
+                            if (item.Offset + item.Size > fs.Length)
+                            {
+                                throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                    "offset: {item.Offset}\n" +
+                                    "size: {item.Size}");
+                            }
+                            fs.Seek(item.Offset, SeekOrigin.Begin);
+                            byte[] osha = sha.ComputeHash(br.ReadBytes(item.Size));
+                            byte[] isha = null;
+                            string testpath = System.IO.Path.Combine(Path, item.Filename);
+                            using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                            {
+                                isha = sha.ComputeHash(br2.BaseStream);
+                            }
+                            if (isha == null)
+                            {
+                                throw new Exception($"failed to verify ({testpath}) sha1 value is null");
+                            }
+                            else if (!isha.SequenceEqual(osha))
+                            {
+                                throw new Exception($"failed to verify ({testpath}) sha1 mismatch \n" +
+                                    $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
+                                    $"offset: {item.Offset}\n" +
+                                    $"size:   {item.Size}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Verified ({testpath}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                            }
+                        }
+                    }
+                }
+            }
+            return System.IO.Path.GetDirectoryName(path);
+        }
     }
 }
