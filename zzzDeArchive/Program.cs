@@ -10,7 +10,12 @@ namespace zzzDeArchive
         //private const string zzz.In = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\main.zzz.old";
         //private const string zzz.In = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\other.zzz";
 
-        private static Zzz.Zzz zzz= new Zzz.Zzz();
+        #region Fields
+
+        private static Zzz.Zzz zzz = new Zzz.Zzz();
+
+        #endregion Fields
+
         #region Methods
 
         private static string ExtractMenu()

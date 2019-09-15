@@ -222,13 +222,6 @@ namespace Zzz
         private string _out;
         private string _path;
 
-        public string Path { get => _path; set => _path = value; }
-        public string Out { get {
-                if (string.IsNullOrWhiteSpace(_out))
-                    return @"out.zzz";
-                return _out; } set => _out = value; }
-        public string In { get => _in; set => _in = value; }
-
         #endregion Fields
 
         #region Methods
@@ -244,11 +237,9 @@ namespace Zzz
         #endregion Methods
 
         #region Constructors
-        public Zzz()
-        {
 
-            sha = new SHA1CryptoServiceProvider();
-        }
+        public Zzz() => sha = new SHA1CryptoServiceProvider();
+
         public Zzz(string path, string @in, string @out = null)
         {
             sha = new SHA1CryptoServiceProvider();
@@ -258,6 +249,24 @@ namespace Zzz
         }
 
         #endregion Constructors
+
+        #region Properties
+
+        public string In { get => _in; set => _in = value; }
+        public string Out
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_out))
+                    return @"out.zzz";
+                return _out;
+            }
+            set => _out = value;
+        }
+
+        public string Path { get => _path; set => _path = value; }
+
+        #endregion Properties
 
         public string Extract()
         {
