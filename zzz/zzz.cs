@@ -124,14 +124,41 @@ namespace ZzzFile
             Header r;
             List<FileData> data = new List<FileData>(@out.Count);
             List<FileData> out2 = new List<FileData>(@out.Data);
+            List<FileData> in2 = new List<FileData>();
             // grab the files that are unique to @out. Replacing that bit of the header
             Console.WriteLine("Eliminating Duplicates...");
-            for (int i = 0; i < out2.Count; i++)
+            //for (int i = 0; i < out2.Count; i++)
+            //{
+            //    if (@in.Data.Any(x => x.Filename.Equals(out2[i].Filename, StringComparison.OrdinalIgnoreCase)))
+            //        out2.RemoveAt(i--);
+            //}
+            for (int i = 0; i < @in.Count; i++)
             {
-                if (@in.Data.Any(x => x.Filename.Equals(out2[i].Filename, StringComparison.OrdinalIgnoreCase)))
-                    out2.RemoveAt(i--);
+                int ind = 0;
+                if ((ind = out2.FindIndex(x => x.Filename.Equals(@in.Data[i].Filename, StringComparison.OrdinalIgnoreCase))) > -1)
+                    out2.RemoveAt(ind);
+                else
+                    in2.Add(@in.Data[i]);
             }
             Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
+            if (@out.Count - out2.Count < @in.Count)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"WARNING you are not replacing all {@in.Count} files. \n" +
+                    $"There are going to be {Math.Abs(@out.Count - out2.Count - @in.Count)} files added!");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+                Console.WriteLine("-- List of new files --");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                foreach (var i in in2)
+                {
+                    Console.WriteLine(i);
+                }
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+            }
             @out.Count = out2.Count;
             @out.Data = out2.ToArray();
 
