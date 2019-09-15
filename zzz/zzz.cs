@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Zzz
+namespace ZzzFile
 { /// <summary>
   /// Part of header that contains info on the files. </summary> <see cref="https://github.com/myst6re/qt-zzz/blob/master/zzztoc.h"/>
     public struct FileData
@@ -90,7 +90,7 @@ namespace Zzz
     /// <summary>
     /// Header for ZZZ file.
     /// </summary>
-    public struct ZzzHeader
+    public struct Header
     {
         #region Fields
 
@@ -118,10 +118,10 @@ namespace Zzz
         /// out files header, This will modify out to remove any files that are being replaced.
         /// </param>
         /// <returns>merged header</returns>
-        public static ZzzHeader Merge(ZzzHeader @in, ref ZzzHeader @out)
+        public static Header Merge(Header @in, ref Header @out)
         {
             Console.WriteLine("Merging Headers");
-            ZzzHeader r;
+            Header r;
             List<FileData> data = new List<FileData>(@out.Count);
             List<FileData> out2 = new List<FileData>(@out.Data);
             // grab the files that are unique to @out. Replacing that bit of the header
@@ -154,9 +154,9 @@ namespace Zzz
             return r;
         }
 
-        public static ZzzHeader Read(BinaryReader br)
+        public static Header Read(BinaryReader br)
         {
-            ZzzHeader r = new ZzzHeader
+            Header r = new Header
             {
                 Count = br.ReadInt32()
             };
@@ -171,9 +171,9 @@ namespace Zzz
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static ZzzHeader Read(string path, out string[] files, string _path)
+        public static Header Read(string path, out string[] files, string _path)
         {
-            ZzzHeader r = new ZzzHeader();
+            Header r = new Header();
             files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
             r.Count = files.Length;
             r.Data = new FileData[r.Count];
@@ -226,7 +226,7 @@ namespace Zzz
 
         #region Methods
 
-        private static void TestSize(ZzzHeader head, Stream stream)
+        private static void TestSize(Header head, Stream stream)
         {
             if (head.ExpectedFileSize != stream.Length)
             {
@@ -270,12 +270,12 @@ namespace Zzz
 
         public string Extract()
         {
-            ZzzHeader head;
+            Header head;
             using (FileStream fs = File.Open(In, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (BinaryReader br = new BinaryReader(fs))
                 {
-                    head = ZzzHeader.Read(br);
+                    head = Header.Read(br);
                     Console.WriteLine(head);
 
                     //Directory.CreateDirectory(_path);
@@ -310,12 +310,12 @@ namespace Zzz
             using (br._in = new BinaryReader(File.Open(In, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             using (br._out = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             {
-                (ZzzHeader _in, ZzzHeader _out) head = (ZzzHeader.Read(br._in), ZzzHeader.Read(br._out));
-                (ZzzHeader head, BinaryWriter bw, BinaryReader br) merged;
+                (Header _in, Header _out) head = (Header.Read(br._in), Header.Read(br._out));
+                (Header head, BinaryWriter bw, BinaryReader br) merged;
 
                 TestSize(head._in, br._in.BaseStream);
                 TestSize(head._out, br._out.BaseStream);
-                merged.head = ZzzHeader.Merge(head._in, ref head._out);
+                merged.head = Header.Merge(head._in, ref head._out);
 
                 using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
                 using (merged.bw = new BinaryWriter(fs))
@@ -397,7 +397,7 @@ namespace Zzz
 
         public string Write()
         {
-            ZzzHeader head = ZzzHeader.Read(Path, out string[] files, Path);
+            Header head = Header.Read(Path, out string[] files, Path);
             string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
             Console.WriteLine(head);
             using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))

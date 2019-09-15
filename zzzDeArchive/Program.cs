@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using ZzzFile;
 
-namespace zzzDeArchive
+namespace ZzzConsole
 {
     public class Program
     {
@@ -12,7 +13,7 @@ namespace zzzDeArchive
 
         #region Fields
 
-        private static Zzz.Zzz zzz = new Zzz.Zzz();
+        private static Zzz zzz = new Zzz();
 
         #endregion Fields
 
