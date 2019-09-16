@@ -65,6 +65,9 @@ namespace ZzzConsole
 
         private static void Main(string[] args)
         {
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "IN", "main"));
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "IN", "other"));
+            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "OUT"));
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
             if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
