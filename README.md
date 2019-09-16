@@ -16,7 +16,7 @@ Write folder to __out.zzz__.<br/>
 `zzzDeArchive "path to folder"`
 
 Merge two or more zzz files to __out.zzz__.<br/>
-`zzzDeArchive "path to zzz with old data" "path to zzz with new data" "path to zzz with new data"...`
+`zzzDeArchive "path to zzz with old data" "path to zzz with new data" "path to zzz with new data"...`<br/>
 If there is a conflict the right most file will override the left files.
 
 See similar project: [qt-zzz](https://github.com/myst6re/qt-zzz)
