@@ -435,15 +435,9 @@ namespace ZzzFile
                         }
                         else
                         {
-<<<<<<< HEAD
                             src = In.First();
-                            br._in[i].BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
-                            isha = sha.ComputeHash(br._in[i].ReadBytes(tmphead.Size));
-=======
-                            src = In;
                             br._in.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
-                            isha = GetHash(br._in, tmphead.Size);
->>>>>>> master
+                            isha = GetHash(br._in[i], tmphead.Size);
                         }
                         if (isha == null)
                         {
