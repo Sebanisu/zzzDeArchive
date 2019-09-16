@@ -15,8 +15,8 @@ Extract zzz to folder.<br/>
 Write folder to __out.zzz__.<br/>
 `zzzDeArchive "path to folder"`
 
-Merge two zzz files to __out.zzz__.<br/>
-`zzzDeArchive "path to zzz with new data" "path to zzz with old data"`
+Merge two or more zzz files to __out.zzz__.<br/>
+`zzzDeArchive "path to zzz with old data" "path to zzz with new data" "path to zzz with new data" "path to zzz with new data"...`
 
 See similar project: [qt-zzz](https://github.com/myst6re/qt-zzz)
 
