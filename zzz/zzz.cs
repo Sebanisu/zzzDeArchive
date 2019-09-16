@@ -259,7 +259,7 @@ namespace ZzzFile
         #region Fields
 
         private static HashAlgorithm sha;
-        private List<string> _in;
+        private List<string> _in= new List<string>(1);
         private string _out;
         private string _path;
 

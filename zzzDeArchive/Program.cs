@@ -67,14 +67,20 @@ namespace ZzzConsole
         {
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])) && File.Exists(Args[1] = Path.GetFullPath(Args[1])))
+            if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
                 //merge
-
                 zzz.Path = Args[0];
-                for(int i = 1; i < Args.Count; i++)
-                    zzz.In.Add(Args[i]);
-                zzz.Merge();
+                for (int i = 1; i < Args.Count; i++)
+                {
+                    Args[i] = Path.GetFullPath(Args[i]);
+                    if (File.Exists(Args[i]) && !zzz.In.Contains(Args[i]))
+                        zzz.In.Add(Args[i]);
+                    else
+                        Console.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
+                }
+                if(zzz.In.Count > 0)
+                    zzz.Merge();
             }
             else if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
@@ -178,21 +184,36 @@ namespace ZzzConsole
             zzz.Path = path;
             do
             {
-                Console.Write(
-                    title +
-                    "Enter the path to zzz file with new data: ");
+                if (zzz.In.Count == 0)
+                {
+                    Console.Write(
+                        title +
+                        "Enter the path to zzz file with new data: ");
+                }
+                else
+                {
+                    Console.Write($"Path to an additional zzz file ({zzz.In.Count}) or press enter to continue: ");
+                }
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
-                path = Path.GetFullPath(path);
-                good = File.Exists(path);
-                if (good)
-                    zzz.In.Add(path);
-                else if (string.IsNullOrWhiteSpace(path) && zzz.In.Count > 0)
-                    break;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    if (zzz.In.Count > 0)
+                        break;
+                    else
+                        Console.WriteLine("Need atleast 1 file you entered an empty value.");
+                }
                 else
-                    Console.WriteLine("File doesn't exist\n");
+                {
+                    path = Path.GetFullPath(path);
+                    good = File.Exists(path) && !zzz.In.Contains(path);
+                    if (good)
+                        zzz.In.Add(path);
+                    else
+                        Console.WriteLine("File doesn't exist or is already added.\n");
+                }
             }
             while (true);
             return zzz.Merge();
