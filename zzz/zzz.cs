@@ -348,7 +348,7 @@ namespace ZzzFile
                 TestSize(head._out, br._out.BaseStream);
                 merged.head = Header.Merge(head._in, ref head._out);
 
-                using (FileStream fs = GetFs(path))
+                using (FileStream fs = GetFs(ref path))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
@@ -427,7 +427,7 @@ namespace ZzzFile
             return System.IO.Path.GetDirectoryName(path);
         }
 
-        private static FileStream GetFs(string path)
+        private static FileStream GetFs(ref string path)
         {
             FileStream fs;
             int i = 0;
@@ -483,7 +483,7 @@ namespace ZzzFile
             Header head = Header.Read(Path, out string[] files, Path);
             string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
             Console.WriteLine(head);
-            using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
+            using (FileStream fs =GetFs(ref path))
             {
                 using (BinaryWriter bw = new BinaryWriter(fs))
                 {
