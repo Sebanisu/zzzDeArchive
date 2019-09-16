@@ -79,7 +79,7 @@ namespace ZzzConsole
                     else
                         Console.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
                 }
-                if(zzz.In.Count > 0)
+                if (zzz.In.Count > 0)
                     zzz.Merge();
             }
             else if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
@@ -102,6 +102,7 @@ namespace ZzzConsole
             }
             else
             {
+            start:
                 ConsoleKeyInfo k = MainMenu();
                 if (k.Key == ConsoleKey.D1 || k.Key == ConsoleKey.NumPad1)
                 {
@@ -119,8 +120,7 @@ namespace ZzzConsole
                 {
                     TestMenu();
                 }
-                Console.WriteLine("\nPress any key to exit...");
-                Console.ReadKey();
+                goto start;
             }
             void openfolder(string folder)
             {
@@ -142,12 +142,15 @@ namespace ZzzConsole
             do
             {
                 Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.1.6.7 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.1.7.0 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
-                    "3) Merge - Write unique data from two zzz files into one zzz file.\n" +
+                    "3) Merge - Write unique data from two or more zzz files into one zzz file.\n" +
                     //"4) FolderMerge - Automaticly merge files in the IN subfolder.\n" +
+                    "\n" +
+                    "Escape) Exit\n\n" +
+
                     "  Select: ");
                 k = Console.ReadKey();
                 Console.WriteLine();
@@ -168,7 +171,11 @@ namespace ZzzConsole
                 Console.Write(
                     title +
                     "  Only unchanged data will be kept, rest will be replaced...\n" +
-                    "Enter the path to zzz file with original/old data: ");
+                    "Enter the path to zzz file with ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("Original/OLD data");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write(": ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
@@ -187,12 +194,15 @@ namespace ZzzConsole
                 if (zzz.In.Count == 0)
                 {
                     Console.Write(
-                        title +
-                        "Enter the path to zzz file with new data: ");
+                        "Enter the path to a zzz file with ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("NEW data");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(": ");
                 }
                 else
                 {
-                    Console.Write($"Path to an additional zzz file ({zzz.In.Count}) or press enter to continue: ");
+                    Console.Write($"Path to an additional zzz file or press enter to continue: ");
                 }
                 path = Console.ReadLine();
                 path = path.Trim('"');
@@ -210,7 +220,10 @@ namespace ZzzConsole
                     path = Path.GetFullPath(path);
                     good = File.Exists(path) && !zzz.In.Contains(path);
                     if (good)
+                    {
                         zzz.In.Add(path);
+                        Console.WriteLine($"File added, {zzz.In.Count} total.");
+                    }
                     else
                         Console.WriteLine("File doesn't exist or is already added.\n");
                 }

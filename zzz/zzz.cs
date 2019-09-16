@@ -96,6 +96,79 @@ namespace ZzzFile
     /// </summary>
     public struct Header
     {
+        #region Methods
+
+        private static Header CorrectOffsets(ref Header r)
+        {
+            long offset = r.TotalBytes;
+            for (int i = 0; i < r.Count; i++)
+            {
+                r.Data[i].Offset = offset;
+                offset += r.Data[i].Size;
+            }
+
+            return r;
+        }
+
+        private static void EliminateDuplicates(ref Header @out, Header[] @in)
+        {
+            Console.WriteLine("Eliminating Duplicates for input zzz files from other input zzz files...");
+            for (int i = 0; i < @in.Length; i++)
+                for (int j = i + 1; j < @in.Length; j++)
+                    EliminateDuplicates(ref @in[i], @in[j], true);
+
+            Console.WriteLine("Eliminating Duplicates for input zzz files from the original zzz file...");
+            for (int i = 0; i < @in.Length; i++)
+                EliminateDuplicates(ref @out, @in[i]);
+        }
+
+        private static void EliminateDuplicates(ref Header @out, Header @in, bool skipwarning = false)
+        {
+            List<FileData> out2 = new List<FileData>(@out.Data);
+            List<FileData> in2 = new List<FileData>();
+            // grab the files that are unique to @out. Replacing that bit of the header
+            //Console.WriteLine("Eliminating Duplicates...");
+            //for (int i = 0; i < out2.Count; i++)
+            //{
+            //    if (@in.Data.Any(x => x.Filename.Equals(out2[i].Filename, StringComparison.OrdinalIgnoreCase)))
+            //        out2.RemoveAt(i--);
+            //}
+            for (int i = 0; i < @in.Count; i++)
+            {
+                int ind = 0;
+                string fn = @in.Data[i].Filename;
+                if ((ind = out2.FindIndex(x => x.Filename.Equals(fn, StringComparison.OrdinalIgnoreCase))) > -1)
+                    out2.RemoveAt(ind);
+                else
+                    in2.Add(@in.Data[i]);
+            }
+            if (@out.Count - out2.Count > 0)
+                Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
+            if (@out.Count - out2.Count < @in.Count && !skipwarning)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"WARNING you are not replacing all {@in.Count} files. \n" +
+                    $"There are going to be {Math.Abs(@out.Count - out2.Count - @in.Count)} files added!\n" +
+                    $"The game may ignore any new files it is not expecting...");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+                Console.WriteLine("-- List of new files --");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                foreach (FileData i in in2)
+                {
+                    Console.WriteLine(i);
+                }
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+            }
+            @out.Count = out2.Count;
+            @out.Data = out2.ToArray();
+        }
+
+        #endregion Methods
+
         #region Fields
 
         public int Count;
@@ -111,16 +184,16 @@ namespace ZzzFile
 
         #endregion Properties
 
-        #region Methods
-
         public static Header Merge(ref Header @out, ref Header[] @in)
         {
+            Console.WriteLine("Merging Headers");
             Header r = new Header();
+            EliminateDuplicates(ref @out, @in);
+
             for (int i = 0; i < @in.Length; i++)
-            {
                 Merge(ref @out, ref @in[i], ref r);
-            }
-            return r;
+
+            return CorrectOffsets(ref r);
         }
 
         public static Header Merge(ref Header @out, ref Header @in)
@@ -140,64 +213,12 @@ namespace ZzzFile
         /// <returns>merged header</returns>
         public static Header Merge(ref Header @out, ref Header @in, ref Header r)
         {
-            Console.WriteLine("Merging Headers");
-            List<FileData> data = new List<FileData>(@out.Count);
-            List<FileData> out2 = new List<FileData>(@out.Data);
-            List<FileData> in2 = new List<FileData>();
-            // grab the files that are unique to @out. Replacing that bit of the header
-            Console.WriteLine("Eliminating Duplicates...");
-            //for (int i = 0; i < out2.Count; i++)
-            //{
-            //    if (@in.Data.Any(x => x.Filename.Equals(out2[i].Filename, StringComparison.OrdinalIgnoreCase)))
-            //        out2.RemoveAt(i--);
-            //}
-            for (int i = 0; i < @in.Count; i++)
-            {
-                int ind = 0;
-                string fn = @in.Data[i].Filename;
-                if ((ind = out2.FindIndex(x => x.Filename.Equals(fn, StringComparison.OrdinalIgnoreCase))) > -1)
-                    out2.RemoveAt(ind);
-                else
-                    in2.Add(@in.Data[i]);
-            }
-            Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
-            if (@out.Count - out2.Count < @in.Count)
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"WARNING you are not replacing all {@in.Count} files. \n" +
-                    $"There are going to be {Math.Abs(@out.Count - out2.Count - @in.Count)} files added!");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("\nPress any key to continue...");
-                Console.ReadKey();
-                Console.WriteLine("-- List of new files --");
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                foreach (FileData i in in2)
-                {
-                    Console.WriteLine(i);
-                }
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("\nPress any key to continue...");
-                Console.ReadKey();
-            }
-            @out.Count = out2.Count;
-            @out.Data = out2.ToArray();
-
-            foreach (FileData i in @out.Data)
-            {
-                data.Add(i);
-            }
-            foreach (FileData i in @in.Data)
-            {
-                data.Add(i);
-            }
+            List<FileData> data = r.Data!= null ? new List<FileData>(r.Data): new List<FileData>();
+            if (r.Count == 0)
+                    data.AddRange(@out.Data);
+            data.AddRange(@in.Data);
             r.Count = data.Count();
             r.Data = data.ToArray();
-            long offset = r.TotalBytes;
-            for (int i = 0; i < r.Count; i++)
-            {
-                r.Data[i].Offset = offset;
-                offset += r.Data[i].Size;
-            }
             return r;
         }
 
@@ -256,8 +277,6 @@ namespace ZzzFile
             }
             Console.WriteLine($"Header data written {TotalBytes} bytes");
         }
-
-        #endregion Methods
     }
 
     public class Zzz
@@ -272,6 +291,56 @@ namespace ZzzFile
         #endregion Fields
 
         #region Methods
+
+        private static FileStream GetFs(ref string path)
+        {
+            string path_ = path;
+            FileStream fs;
+            int i = 0;
+            do
+            {
+                try
+                {
+                    fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                }
+                catch (IOException e)
+                {
+                    fs = null;
+                    Console.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
+                    path = System.IO.Path.Combine(
+                        System.IO.Path.GetDirectoryName(path_),
+                        $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
+                }
+            }
+            while (fs == null);
+
+            return fs;
+        }
+
+        private static byte[] GetHash(BinaryReader br, uint size)
+        {
+            byte[] sha;
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter tmp = new BinaryWriter(ms))
+            {
+                ReadUInt(tmp, br, size);
+                //ms.SetLength(size);
+                ms.Seek(0, SeekOrigin.Begin);
+                sha = Zzz.sha.ComputeHash(ms);
+            }
+
+            return sha;
+        }
+
+        private static void ReadUInt(BinaryWriter bw, BinaryReader br, uint size)
+        {
+            while (size > 0)
+            {
+                int s = (size > int.MaxValue) ? int.MaxValue : (int)size;
+                bw.Write(br.ReadBytes(s));
+                size -= (uint)s;
+            }
+        }
 
         private static void TestSize(Header head, Stream stream)
         {
@@ -355,20 +424,22 @@ namespace ZzzFile
             string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
+            Console.WriteLine($"Opening {Path}");
             using (br._out = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             {
+                head._out = Header.Read(br._out);
+                TestSize(head._out, br._out.BaseStream);
                 br._in = new BinaryReader[In.Count];
                 head._in = new Header[In.Count];
                 for (int i = 0; i < In.Count; i++)
                 {
+                    Console.WriteLine($"Opening {In[i]}");
                     br._in[i] = new BinaryReader(File.Open(In[i], FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
                     head._in[i] = Header.Read(br._in[i]);
                     TestSize(head._in[i], br._in[i].BaseStream);
                 }
-                head._out = Header.Read(br._out);
                 (Header head, BinaryWriter bw, BinaryReader br) merged;
 
-                TestSize(head._out, br._out.BaseStream);
                 merged.head = Header.Merge(ref head._out, ref head._in);
 
                 using (FileStream fs = GetFs(ref path))
@@ -417,27 +488,24 @@ namespace ZzzFile
                         byte[] isha = null;
                         FileData tmphead = new FileData();
                         int i = 0;
+                        string src="";
                         for (; i < In.Count; i++)
                         {
                             tmphead = head._in[i].Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
-                            if (tmphead.Equals(new FileData()))
+                            if (!tmphead.Equals(new FileData()))
                             {
+                                src = In[i];
+                                br._in[i].BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
+                                isha = GetHash(br._in[i], tmphead.Size);
                                 break;
                             }
                         }
-                        string src;
                         if (tmphead.Equals(new FileData()))
                         {
                             src = Path;
                             tmphead = head._out.Data.First(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
                             br._out.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
                             isha = GetHash(br._out, tmphead.Size);
-                        }
-                        else
-                        {
-                            src = In.First();
-                            br._in[i].BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
-                            isha = GetHash(br._in[i], tmphead.Size);
                         }
                         if (isha == null)
                         {
@@ -467,64 +535,12 @@ namespace ZzzFile
             return System.IO.Path.GetDirectoryName(path);
         }
 
-        private static FileStream GetFs(ref string path)
-        {
-            string path_ = path;
-            FileStream fs;
-            int i = 0;
-            do
-            {
-                try
-                {
-                    fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-                }
-                catch (IOException e)
-                {
-                    fs = null;
-                    Console.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
-                    path = System.IO.Path.Combine(
-                        System.IO.Path.GetDirectoryName(path_),
-                        $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
-
-                }
-            }
-            while (fs == null);
-
-            return fs;
-        }
-
-        private static void ReadUInt(BinaryWriter bw, BinaryReader br, uint size)
-        {
-            while (size > 0)
-            {
-
-                int s = (size > int.MaxValue)? int.MaxValue : (int)size;
-                bw.Write(br.ReadBytes(s));
-                size -= (uint)s;
-            }
-        }
-
-        private static byte[] GetHash(BinaryReader br, uint size)
-        {
-            byte[] sha;
-            using (MemoryStream ms = new MemoryStream())
-            using (BinaryWriter tmp = new BinaryWriter(ms))
-            {
-                ReadUInt(tmp, br, size);
-                //ms.SetLength(size);
-                ms.Seek(0, SeekOrigin.Begin);
-                sha = Zzz.sha.ComputeHash(ms);
-            }
-
-            return sha;
-        }
-
         public string Write()
         {
             Header head = Header.Read(Path, out string[] files, Path);
             string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
             Console.WriteLine(head);
-            using (FileStream fs =GetFs(ref path))
+            using (FileStream fs = GetFs(ref path))
             {
                 using (BinaryWriter bw = new BinaryWriter(fs))
                 {
