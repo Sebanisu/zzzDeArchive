@@ -429,6 +429,7 @@ namespace ZzzFile
 
         private static FileStream GetFs(ref string path)
         {
+            string path_ = path;
             FileStream fs;
             int i = 0;
             do
@@ -442,8 +443,8 @@ namespace ZzzFile
                     fs = null;
                     Console.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
                     path = System.IO.Path.Combine(
-                        System.IO.Path.GetDirectoryName(path),
-                        $"{System.IO.Path.GetFileNameWithoutExtension(path)}{i++}.zzz");
+                        System.IO.Path.GetDirectoryName(path_),
+                        $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
 
                 }
             }
