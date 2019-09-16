@@ -15,7 +15,11 @@ namespace ZzzFile
         private byte[] filenamebytes;
         public int FilenameLength;
         public long Offset;
-        public int Size;
+
+        /// <summary>
+        /// Needs to be uint to support 4gb files? Though probably over kill.
+        /// </summary>
+        public uint Size;
 
         #endregion Fields
 
@@ -54,8 +58,8 @@ namespace ZzzFile
             //var tmp = r.Filename.Where(x => invalid.Contains(x));
             //if (tmp.Count() > 0)
             //    throw new InvalidDataException($"String ({r.Filename}) contains invalid characters! ({tmp})");
-            r.Offset = br.ReadInt64();
-            r.Size = br.ReadInt32();
+            r.Offset = br.ReadInt64(); // if we are reading more than this we are on future tech.
+            r.Size = br.ReadUInt32();
             return r;
         }
 
@@ -69,7 +73,7 @@ namespace ZzzFile
             FileData r = new FileData
             {
                 Filename = safe,
-                Size = (int)fi.Length
+                Size = checked((uint)fi.Length) // zzz file only supports indivitual files of size uint.
             };
             return r;
         }
@@ -151,7 +155,7 @@ namespace ZzzFile
                 Console.ReadKey();
                 Console.WriteLine("-- List of new files --");
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                foreach (var i in in2)
+                foreach (FileData i in in2)
                 {
                     Console.WriteLine(i);
                 }
@@ -208,7 +212,7 @@ namespace ZzzFile
             for (int i = 0; i < r.Count; i++)
                 r.Data[i] = FileData.Read(files[i], _path);
 
-            int pos = r.TotalBytes;
+            long pos = r.TotalBytes;
 
             //cannot know the size of the header till i had loaded the rest of the data.
             //so now we are updating the offset to be past the header. in the same order as the files.
@@ -285,7 +289,7 @@ namespace ZzzFile
             get
             {
                 if (string.IsNullOrWhiteSpace(_out))
-                    return @"out.zzz";
+                    return _out = @"out.zzz";
                 return _out;
             }
             set => _out = value;
@@ -318,7 +322,7 @@ namespace ZzzFile
                                 if (d.Offset <= long.MaxValue)
                                 {
                                     fs.Seek(d.Offset, SeekOrigin.Begin);
-                                    bw.Write(br.ReadBytes(d.Size));
+                                    ReadUInt(bw, br, d.Size);
                                 }
                                 else throw new ArgumentOutOfRangeException($"d.offset is too large! ({d.Offset})");
                             }
@@ -344,7 +348,7 @@ namespace ZzzFile
                 TestSize(head._out, br._out.BaseStream);
                 merged.head = Header.Merge(head._in, ref head._out);
 
-                using (FileStream fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
+                using (FileStream fs = GetFs(path))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
@@ -360,7 +364,7 @@ namespace ZzzFile
                         {
                             _br.BaseStream.Seek(i.Offset, SeekOrigin.Begin);
                             Console.WriteLine($"Writing {i.Filename} {i.Size} bytes");
-                            merged.bw.Write(_br.ReadBytes(i.Size));
+                            ReadUInt(merged.bw, _br, i.Size);
                         }
                     }
                     Console.WriteLine($"Saved to: {path}");
@@ -381,7 +385,8 @@ namespace ZzzFile
                                 "size: {item.Size}");
                         }
                         fs.Seek(item.Offset, SeekOrigin.Begin);
-                        byte[] osha = sha.ComputeHash(merged.br.ReadBytes(item.Size));
+                        byte[] osha = null;
+                        osha = GetHash(merged.br, item.Size);
                         byte[] isha = null;
                         FileData tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
                         string src;
@@ -390,13 +395,13 @@ namespace ZzzFile
                             src = Path;
                             tmphead = head._out.Data.First(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
                             br._out.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
-                            isha = sha.ComputeHash(br._out.ReadBytes(tmphead.Size));
+                            isha = GetHash(br._out, tmphead.Size);
                         }
                         else
                         {
                             src = In;
                             br._in.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
-                            isha = sha.ComputeHash(br._in.ReadBytes(tmphead.Size));
+                            isha = GetHash(br._in, tmphead.Size);
                         }
                         if (isha == null)
                         {
@@ -420,6 +425,57 @@ namespace ZzzFile
                 }
             }
             return System.IO.Path.GetDirectoryName(path);
+        }
+
+        private static FileStream GetFs(string path)
+        {
+            FileStream fs;
+            int i = 0;
+            do
+            {
+                try
+                {
+                    fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                }
+                catch (IOException e)
+                {
+                    fs = null;
+                    Console.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
+                    path = System.IO.Path.Combine(
+                        System.IO.Path.GetDirectoryName(path),
+                        $"{System.IO.Path.GetFileNameWithoutExtension(path)}{i++}.zzz");
+
+                }
+            }
+            while (fs == null);
+
+            return fs;
+        }
+
+        private static void ReadUInt(BinaryWriter bw, BinaryReader br, uint size)
+        {
+            while (size > 0)
+            {
+
+                int s = (size > int.MaxValue)? int.MaxValue : (int)size;
+                bw.Write(br.ReadBytes(s));
+                size -= (uint)s;
+            }
+        }
+
+        private static byte[] GetHash(BinaryReader br, uint size)
+        {
+            byte[] sha;
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter tmp = new BinaryWriter(ms))
+            {
+                ReadUInt(tmp, br, size);
+                //ms.SetLength(size);
+                ms.Seek(0, SeekOrigin.Begin);
+                sha = Zzz.sha.ComputeHash(ms);
+            }
+
+            return sha;
         }
 
         public string Write()
@@ -468,7 +524,8 @@ namespace ZzzFile
                                     "size: {item.Size}");
                             }
                             fs.Seek(item.Offset, SeekOrigin.Begin);
-                            byte[] osha = sha.ComputeHash(br.ReadBytes(item.Size));
+
+                            byte[] osha = GetHash(br, item.Size);
                             byte[] isha = null;
                             string testpath = System.IO.Path.Combine(Path, item.Filename);
                             using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
