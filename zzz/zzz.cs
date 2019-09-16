@@ -108,10 +108,11 @@ namespace ZzzFile
         #endregion Properties
 
         #region Methods
+
         public static Header Merge(ref Header @out, ref Header[] @in)
         {
             Header r = new Header();
-            for(int i = 0; i< @in.Length; i++)
+            for (int i = 0; i < @in.Length; i++)
             {
                 Merge(ref @out, ref @in[i], ref r);
             }
@@ -121,8 +122,9 @@ namespace ZzzFile
         public static Header Merge(ref Header @out, ref Header @in)
         {
             Header r = new Header();
-            return Merge(ref@out,ref @in,ref r);
+            return Merge(ref @out, ref @in, ref r);
         }
+
         /// <summary>
         /// Create a new header that contains data not replaced from old file and replaced data from
         /// new file; This will modify out header to remove any files that are being replaced.
@@ -165,7 +167,7 @@ namespace ZzzFile
                 Console.ReadKey();
                 Console.WriteLine("-- List of new files --");
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                foreach (var i in in2)
+                foreach (FileData i in in2)
                 {
                     Console.WriteLine(i);
                 }
@@ -259,7 +261,7 @@ namespace ZzzFile
         #region Fields
 
         private static HashAlgorithm sha;
-        private List<string> _in= new List<string>(1);
+        private List<string> _in = new List<string>(1);
         private string _out;
         private string _path;
 
@@ -347,14 +349,21 @@ namespace ZzzFile
         public string Merge()
         {
             string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
-            (BinaryReader _in, BinaryReader _out) br;
-            using (br._in = new BinaryReader(File.Open(In.First(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            (BinaryReader[] _in, BinaryReader _out) br;
+            (Header[] _in, Header _out) head;
             using (br._out = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             {
-                (Header _in, Header _out) head = (Header.Read(br._in), Header.Read(br._out));
+                br._in = new BinaryReader[In.Count];
+                head._in = new Header[In.Count];
+                for (int i = 0; i < In.Count; i++)
+                {
+                    br._in[i] = new BinaryReader(File.Open(In[i], FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                    head._in[i] = Header.Read(br._in[i]);
+                    TestSize(head._in[i], br._in[i].BaseStream);
+                }
+                head._out = Header.Read(br._out);
                 (Header head, BinaryWriter bw, BinaryReader br) merged;
 
-                TestSize(head._in, br._in.BaseStream);
                 TestSize(head._out, br._out.BaseStream);
                 merged.head = Header.Merge(ref head._out, ref head._in);
 
@@ -365,14 +374,18 @@ namespace ZzzFile
                     merged.head.Write(merged.bw);
                     Console.WriteLine($"Writing raw file data from {Path}");
                     Write(br._out, head._out.Data);
-                    Console.WriteLine($"Writing raw file data from {In}");
-                    Write(br._in, head._in.Data);
+
+                    for (int i = 0; i < In.Count; i++)
+                    {
+                        Console.WriteLine($"Writing raw file data from {In[i]}");
+                        Write(br._in[i], head._in[i].Data);
+                    }
 
                     void Write(BinaryReader _br, FileData[] data)
                     {
                         foreach (FileData i in data)
                         {
-                            _br.BaseStream.Seek((int)i.Offset, SeekOrigin.Begin);
+                            _br.BaseStream.Seek(i.Offset, SeekOrigin.Begin);
                             Console.WriteLine($"Writing {i.Filename} {i.Size} bytes");
                             merged.bw.Write(_br.ReadBytes(i.Size));
                         }
@@ -397,7 +410,16 @@ namespace ZzzFile
                         fs.Seek(item.Offset, SeekOrigin.Begin);
                         byte[] osha = sha.ComputeHash(merged.br.ReadBytes(item.Size));
                         byte[] isha = null;
-                        FileData tmphead = head._in.Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
+                        FileData tmphead = new FileData();
+                        int i = 0;
+                        for (; i < In.Count; i++)
+                        {
+                            tmphead = head._in[i].Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
+                            if (tmphead.Equals(new FileData()))
+                            {
+                                break;
+                            }
+                        }
                         string src;
                         if (tmphead.Equals(new FileData()))
                         {
@@ -409,8 +431,8 @@ namespace ZzzFile
                         else
                         {
                             src = In.First();
-                            br._in.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
-                            isha = sha.ComputeHash(br._in.ReadBytes(tmphead.Size));
+                            br._in[i].BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
+                            isha = sha.ComputeHash(br._in[i].ReadBytes(tmphead.Size));
                         }
                         if (isha == null)
                         {
