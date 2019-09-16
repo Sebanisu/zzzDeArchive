@@ -436,7 +436,7 @@ namespace ZzzFile
                         else
                         {
                             src = In.First();
-                            br._in.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
+                            br._in[i].BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
                             isha = GetHash(br._in[i], tmphead.Size);
                         }
                         if (isha == null)
@@ -459,6 +459,10 @@ namespace ZzzFile
                         }
                     }
                 }
+            }
+            for (int i = 0; i < In.Count; i++)
+            {
+                br._in[i].Close();
             }
             return System.IO.Path.GetDirectoryName(path);
         }
