@@ -358,7 +358,7 @@ namespace ZzzFile
                     {
                         foreach (FileData i in data)
                         {
-                            _br.BaseStream.Seek((int)i.Offset, SeekOrigin.Begin);
+                            _br.BaseStream.Seek(i.Offset, SeekOrigin.Begin);
                             Console.WriteLine($"Writing {i.Filename} {i.Size} bytes");
                             merged.bw.Write(_br.ReadBytes(i.Size));
                         }
