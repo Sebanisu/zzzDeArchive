@@ -41,7 +41,7 @@ namespace ZzzConsole
             }
             while (true);
 
-            zzz.In = path;
+            zzz.In.Add(path);
             do
             {
                 Console.Write(
@@ -67,11 +67,13 @@ namespace ZzzConsole
         {
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])) && File.Exists(Args[1] = Path.GetFullPath(Args[1])))
+            if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])) && File.Exists(Args[1] = Path.GetFullPath(Args[1])))
             {
                 //merge
-                zzz.In = Args[0];
-                zzz.Path = Args[1];
+
+                zzz.Path = Args[0];
+                for(int i = 1; i < Args.Count; i++)
+                    zzz.In.Add(Args[i]);
                 zzz.Merge();
             }
             else if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
@@ -80,7 +82,7 @@ namespace ZzzConsole
                 Directory.CreateDirectory(Args[1]);
                 if (Directory.Exists(Args[1]))
                 {
-                    zzz.In = Args[0];
+                    zzz.In.Add(Args[0]);
                     zzz.Path = Args[1];
                     zzz.Extract();
                 }
@@ -139,6 +141,7 @@ namespace ZzzConsole
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
                     "3) Merge - Write unique data from two zzz files into one zzz file.\n" +
+                    //"4) FolderMerge - Automaticly merge files in the IN subfolder.\n" +
                     "  Select: ");
                 k = Console.ReadKey();
                 Console.WriteLine();
@@ -159,7 +162,7 @@ namespace ZzzConsole
                 Console.Write(
                     title +
                     "  Only unchanged data will be kept, rest will be replaced...\n" +
-                    "Enter the path to zzz file with new data: ");
+                    "Enter the path to zzz file with original/old data: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
@@ -172,24 +175,26 @@ namespace ZzzConsole
             }
             while (true);
 
-            zzz.In = path;
+            zzz.Path = path;
             do
             {
                 Console.Write(
                     title +
-                    "Enter the path to zzz file with old data: ");
+                    "Enter the path to zzz file with new data: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
                 Console.WriteLine();
                 path = Path.GetFullPath(path);
                 good = File.Exists(path);
-                if (!good)
+                if (good)
+                    zzz.In.Add(path);
+                else if (string.IsNullOrWhiteSpace(path) && zzz.In.Count > 0)
+                    break;
+                else
                     Console.WriteLine("File doesn't exist\n");
-                else break;
             }
             while (true);
-            zzz.Path = path;
             return zzz.Merge();
         }
 
