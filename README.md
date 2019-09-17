@@ -29,7 +29,6 @@ Folder Merge:<br/>
 - Place mod zzz files that are to go into __other.zzz__ into `IN\other`<br/>
 - Output will be in the __OUT__ folder.
 
-
 See similar project: [qt-zzz](https://github.com/myst6re/qt-zzz)
 
 Fourm link: [Qhimm](http://forums.qhimm.com/index.php?topic=19209.msg267708#msg267708)
