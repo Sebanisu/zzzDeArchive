@@ -457,6 +457,10 @@ namespace ZzzFile
 
         public string FolderMerge()
         {
+            List<string> d1 = Directory.EnumerateDirectories(id1).ToList();
+            List<string> d2 = Directory.EnumerateDirectories(id2).ToList();
+            Write(d1);
+            Write(d2);
             List<string> f1 = Directory.EnumerateFiles(id1).ToList();
             List<string> f2 = Directory.EnumerateFiles(id2).ToList();
             Merge(f1, main);
@@ -464,10 +468,23 @@ namespace ZzzFile
             return od;
         }
 
+        private void Write(List<string> d1)
+        {
+            var path = Path_;
+            foreach (var d in d1)
+            {
+                Path_ = d;
+                Out = $"{d}.zzz";
+                Write();
+            }
+            Path_ = path;
+        }
+
         private void Merge(List<string> f1, string main)
         {
             if (f1.Count() > 1)
             {
+
                 int ind = f1.FindIndex(x => IsMainOrOther(main, x));
                 if (ind >= 0)
                 {
