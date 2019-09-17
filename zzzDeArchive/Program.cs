@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using ZzzFile;
 
 namespace ZzzConsole
@@ -59,21 +60,26 @@ namespace ZzzConsole
                 else break;
             }
             while (true);
-            zzz.Path = path;
+            zzz.Path_ = path;
             return zzz.Extract();
         }
 
         private static void Main(string[] args)
         {
-            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "IN", "main"));
-            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "IN", "other"));
-            Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "OUT"));
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
+            if (Args.Count == 1 &&
+                (Args[0].Equals("-foldermerge", StringComparison.OrdinalIgnoreCase) ||
+                Args[0].Equals("-mergefolder", StringComparison.OrdinalIgnoreCase)) &&
+                (Directory.EnumerateFiles(zzz.id1).Count() > 1 ||
+                Directory.EnumerateFiles(zzz.id2).Count() > 1))
+            {
+                zzz.FolderMerge();
+            }
+            else if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
                 //merge
-                zzz.Path = Args[0];
+                zzz.Path_ = Args[0];
                 for (int i = 1; i < Args.Count; i++)
                 {
                     Args[i] = Path.GetFullPath(Args[i]);
@@ -92,7 +98,7 @@ namespace ZzzConsole
                 if (Directory.Exists(Args[1]))
                 {
                     zzz.In.Add(Args[0]);
-                    zzz.Path = Args[1];
+                    zzz.Path_ = Args[1];
                     zzz.Extract();
                 }
                 else
@@ -100,7 +106,7 @@ namespace ZzzConsole
             }
             else if (Args.Count == 1 && Directory.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
-                zzz.Path = Args[0];
+                zzz.Path_ = Args[0];
                 zzz.Write();
             }
             else
@@ -118,6 +124,11 @@ namespace ZzzConsole
                 else if (k.Key == ConsoleKey.D3 || k.Key == ConsoleKey.NumPad3)
                 {
                     openfolder(MergeMenu());
+                }
+                else if ((k.Key == ConsoleKey.D4 || k.Key == ConsoleKey.NumPad4) &&
+                    (Directory.EnumerateFiles(zzz.id1).Count() > 1 || Directory.EnumerateFiles(zzz.id2).Count() > 1))
+                {
+                    openfolder(zzz.FolderMerge());
                 }
                 else if (k.Key == ConsoleKey.T)
                 {
@@ -149,8 +160,10 @@ namespace ZzzConsole
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
-                    "3) Merge - Write unique data from two or more zzz files into one zzz file.\n" +
-                    //"4) FolderMerge - Automaticly merge files in the IN subfolder.\n" +
+                    "3) Merge - Write unique data from two or more zzz files into one zzz file.\n");
+                if (Directory.EnumerateFiles(zzz.id1).Count() > 1 || Directory.EnumerateFiles(zzz.id2).Count() > 1)
+                    Console.Write("4) FolderMerge - Automaticly merge files in the IN subfolder. To the OUT folder\n");
+                Console.Write(
                     "\n" +
                     "Escape) Exit\n\n" +
 
@@ -160,7 +173,7 @@ namespace ZzzConsole
                 if (k.Key == ConsoleKey.Escape)
                     Environment.Exit(0);
             }
-            while (k.Key != ConsoleKey.T && k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
+            while (k.Key != ConsoleKey.T && k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.D4 && k.Key != ConsoleKey.NumPad4 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
             return k;
         }
 
@@ -191,7 +204,7 @@ namespace ZzzConsole
             }
             while (true);
 
-            zzz.Path = path;
+            zzz.Path_ = path;
             do
             {
                 if (zzz.In.Count == 0)
@@ -262,7 +275,7 @@ namespace ZzzConsole
             {
                 Console.WriteLine($"Testing: {dir}\n");
                 string[] subdirectoryEntries = Directory.GetDirectories(dir);
-                zzz.Path = dir;
+                zzz.Path_ = dir;
                 zzz.Write();
                 foreach (string subdir in subdirectoryEntries)
                     LoadSubDirs(subdir);
@@ -291,7 +304,7 @@ namespace ZzzConsole
             }
             while (true);
 
-            zzz.Path = path;
+            zzz.Path_ = path;
             return zzz.Write();
         }
 
