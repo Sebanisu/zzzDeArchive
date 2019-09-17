@@ -178,9 +178,17 @@ namespace ZzzFile
 
         #region Properties
 
-        public long ExpectedFileSize => Data.Last().Size + Data.Last().Offset;
+        public long ExpectedFileSize => (Data?.Last().Size ?? 0) + (Data?.Last().Offset ?? 0);
 
-        public int TotalBytes => sizeof(int) + (from x in Data select x.TotalBytes).Sum();
+        public int TotalBytes
+        {
+            get
+            {
+                if ((Data?.Length ?? 0) > 0)
+                    return sizeof(int) + (from x in Data select x.TotalBytes).Sum();
+                return sizeof(int);
+            }
+        }
 
         #endregion Properties
 
@@ -213,9 +221,9 @@ namespace ZzzFile
         /// <returns>merged header</returns>
         public static Header Merge(ref Header @out, ref Header @in, ref Header r)
         {
-            List<FileData> data = r.Data!= null ? new List<FileData>(r.Data): new List<FileData>();
+            List<FileData> data = r.Data != null ? new List<FileData>(r.Data) : new List<FileData>();
             if (r.Count == 0)
-                    data.AddRange(@out.Data);
+                data.AddRange(@out.Data);
             data.AddRange(@in.Data);
             r.Count = data.Count();
             r.Data = data.ToArray();
@@ -270,11 +278,12 @@ namespace ZzzFile
         public void Write(BinaryWriter bw)
         {
             bw.Write(Count);
-            foreach (FileData r in Data)
-            {
-                Console.WriteLine($"Writing FileData {r}");
-                r.Write(bw);
-            }
+            if (Data != null)
+                foreach (FileData r in Data)
+                {
+                    Console.WriteLine($"Writing FileData {r}");
+                    r.Write(bw);
+                }
             Console.WriteLine($"Header data written {TotalBytes} bytes");
         }
     }
@@ -284,6 +293,7 @@ namespace ZzzFile
         #region Fields
 
         private static HashAlgorithm sha;
+        private readonly string other;
         private List<string> _in = new List<string>(1);
         private string _out;
         private string _path;
@@ -354,33 +364,59 @@ namespace ZzzFile
 
         #region Constructors
 
-        public Zzz() => sha = new SHA1CryptoServiceProvider();
-
-        public Zzz(string path, List<string> @in, string @out = null)
+        public Zzz()
         {
+            main = "main.zzz";
+            other = "other.zzz";
+            id1 = Path.Combine(Directory.GetCurrentDirectory(), "IN", "main");
+            id2 = Path.Combine(Directory.GetCurrentDirectory(), "IN", "other");
+            Directory.CreateDirectory(id1);
+            Directory.CreateDirectory(id2);
+            od = Path.Combine(Directory.GetCurrentDirectory(), "OUT");
+            Directory.CreateDirectory(od);
             sha = new SHA1CryptoServiceProvider();
-            Path = path;
-            Out = @out;
-            In = @in;
         }
+
+        //public Zzz(string path, List<string> @in, string @out = null)
+        //{
+        //    sha = new SHA1CryptoServiceProvider();
+        //    Path_ = path;
+        //    Out = @out;
+        //    In = @in;
+        //}
 
         #endregion Constructors
 
         #region Properties
 
+        public string id1 { get; }
+        public string id2 { get; }
         public List<string> In { get => _in; set => _in = value; }
+        public string main { get; }
+        public string od { get; }
         public string Out
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(_out))
-                    return _out = @"out.zzz";
+                {
+                    if (IsMainOrOther(main, Path_))
+                    {
+                        Out = Path.Combine(od, main);
+                    }
+                    else if (IsMainOrOther(other, Path_))
+                    {
+                        Out = Path.Combine(od, main);
+                    }
+                    else
+                        return _out = Path.Combine(od, "out.zzz");
+                }
                 return _out;
             }
             set => _out = value;
         }
 
-        public string Path { get => _path; set => _path = value; }
+        public string Path_ { get => _path; set => _path = value; }
 
         #endregion Properties
 
@@ -398,7 +434,7 @@ namespace ZzzFile
                     foreach (FileData d in head.Data)
                     {
                         Console.WriteLine($"Writing {d}");
-                        string path = System.IO.Path.Combine(Path, d.Filename);
+                        string path = System.IO.Path.Combine(Path_, d.Filename);
                         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
                         using (FileStream fso = File.Create(path))
                         {
@@ -415,17 +451,70 @@ namespace ZzzFile
                     }
                 }
             }
-            Console.WriteLine($"Saved to: {Path}");
-            return Path;
+            Console.WriteLine($"Saved to: {Path_}");
+            return Path_;
         }
+
+        public string FolderMerge()
+        {
+            List<string> d1 = Directory.EnumerateDirectories(id1).ToList();
+            List<string> d2 = Directory.EnumerateDirectories(id2).ToList();
+            Write(d1);
+            Write(d2);
+            List<string> f1 = Directory.EnumerateFiles(id1).ToList();
+            List<string> f2 = Directory.EnumerateFiles(id2).ToList();
+            Merge(f1, main);
+            Merge(f2, other);
+            return od;
+        }
+
+        private void Write(List<string> d1)
+        {
+            var path = Path_;
+            foreach (var d in d1)
+            {
+                Path_ = d;
+                Out = $"{d}.zzz";
+                Write();
+            }
+            Path_ = path;
+        }
+
+        private void Merge(List<string> f1, string main)
+        {
+            if (f1.Count() > 1)
+            {
+
+                int ind = f1.FindIndex(x => IsMainOrOther(main, x));
+                if (ind >= 0)
+                {
+                    Path_ = f1[ind];
+                    f1.RemoveAt(ind);
+                    In = f1;
+                    Out = Path.Combine(od, main);
+                }
+                else
+                {
+                    Path_ = f1.First();
+                    f1.Remove(Path_);
+                    In = f1;
+                    Out = Path.Combine(od, $"part_main");
+                }
+                Merge();
+            }
+        }
+
+        private bool IsMainOrOther(string x) => IsMainOrOther(main, x) || IsMainOrOther(other, x);
+
+        private static bool IsMainOrOther(string main, string x) => Path.GetFileName(x).Equals(main, StringComparison.OrdinalIgnoreCase);
 
         public string Merge()
         {
-            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
+            if (Out != null) { };
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
-            Console.WriteLine($"Opening {Path}");
-            using (br._out = new BinaryReader(File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            Console.WriteLine($"Opening {Path_}");
+            using (br._out = new BinaryReader(File.Open(Path_, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             {
                 head._out = Header.Read(br._out);
                 TestSize(head._out, br._out.BaseStream);
@@ -442,12 +531,12 @@ namespace ZzzFile
 
                 merged.head = Header.Merge(ref head._out, ref head._in);
 
-                using (FileStream fs = GetFs(ref path))
+                using (FileStream fs = GetFs(ref _out))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
                     merged.head.Write(merged.bw);
-                    Console.WriteLine($"Writing raw file data from {Path}");
+                    Console.WriteLine($"Writing raw file data from {Path_}");
                     Write(br._out, head._out.Data);
 
                     for (int i = 0; i < In.Count; i++)
@@ -465,7 +554,7 @@ namespace ZzzFile
                             ReadUInt(merged.bw, _br, i.Size);
                         }
                     }
-                    Console.WriteLine($"Saved to: {path}");
+                    Console.WriteLine($"Saved to: {Out}");
                     Console.WriteLine($"Verifing output");
                     TestSize(merged.head, merged.bw.BaseStream);
 
@@ -488,7 +577,7 @@ namespace ZzzFile
                         byte[] isha = null;
                         FileData tmphead = new FileData();
                         int i = 0;
-                        string src="";
+                        string src = "";
                         for (; i < In.Count; i++)
                         {
                             tmphead = head._in[i].Data.FirstOrDefault(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
@@ -502,7 +591,7 @@ namespace ZzzFile
                         }
                         if (tmphead.Equals(new FileData()))
                         {
-                            src = Path;
+                            src = Path_;
                             tmphead = head._out.Data.First(x => x.Filename.Equals(item.Filename, StringComparison.OrdinalIgnoreCase));
                             br._out.BaseStream.Seek(tmphead.Offset, SeekOrigin.Begin);
                             isha = GetHash(br._out, tmphead.Size);
@@ -532,83 +621,83 @@ namespace ZzzFile
             {
                 br._in[i].Close();
             }
-            return System.IO.Path.GetDirectoryName(path);
+            return System.IO.Path.GetDirectoryName(Out);
         }
 
         public string Write()
         {
-            Header head = Header.Read(Path, out string[] files, Path);
-            string path = System.IO.Path.Combine(Directory.GetCurrentDirectory(), Out);
+            Header head = Header.Read(Path_, out string[] files, Path_);
             Console.WriteLine(head);
-            using (FileStream fs = GetFs(ref path))
-            {
-                using (BinaryWriter bw = new BinaryWriter(fs))
+            if (Out != null)
+                using (FileStream fs = GetFs(ref _out))
                 {
-                    head.Write(bw);
-                    Console.WriteLine($"Writing raw file data from {Path}");
-                    foreach (string file in files)
+                    using (BinaryWriter bw = new BinaryWriter(fs))
                     {
-                        FileInfo fi = new FileInfo(file);
-                        Console.WriteLine($"Writing {file} {fi.Length} bytes");
-                        using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                        head.Write(bw);
+                        Console.WriteLine($"Writing raw file data from {Path_}");
+                        foreach (string file in files)
                         {
-                            byte[] buffer;
-                            do
+                            FileInfo fi = new FileInfo(file);
+                            Console.WriteLine($"Writing {file} {fi.Length} bytes");
+                            using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                             {
-                                buffer = br.ReadBytes((int)br.BaseStream.Length);
-                                bw.Write(buffer);
+                                byte[] buffer;
+                                do
+                                {
+                                    buffer = br.ReadBytes((int)br.BaseStream.Length);
+                                    bw.Write(buffer);
+                                }
+                                while (buffer.Length > 0);
                             }
-                            while (buffer.Length > 0);
                         }
-                    }
 
-                    Console.WriteLine($"Saved to: {path}");
-                    Console.WriteLine($"Verifing output");
-                    TestSize(head, bw.BaseStream);
-                    using (BinaryReader br = new BinaryReader(fs))
-                    {
-                        foreach (FileData item in head.Data)
+                        Console.WriteLine($"Saved to: {Out}");
+                        Console.WriteLine($"Verifing output");
+                        TestSize(head, bw.BaseStream);
+                        using (BinaryReader br = new BinaryReader(fs))
                         {
-                            if (item.Offset > fs.Length)
+                            foreach (FileData item in head.Data)
                             {
-                                throw new ArgumentOutOfRangeException($"Offset too large!\n" +
-                                    "offset: {item.Offset}");
-                            }
-                            if (item.Offset + item.Size > fs.Length)
-                            {
-                                throw new ArgumentOutOfRangeException($"Offset too large!\n" +
-                                    "offset: {item.Offset}\n" +
-                                    "size: {item.Size}");
-                            }
-                            fs.Seek(item.Offset, SeekOrigin.Begin);
+                                if (item.Offset > fs.Length)
+                                {
+                                    throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                        "offset: {item.Offset}");
+                                }
+                                if (item.Offset + item.Size > fs.Length)
+                                {
+                                    throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                        "offset: {item.Offset}\n" +
+                                        "size: {item.Size}");
+                                }
+                                fs.Seek(item.Offset, SeekOrigin.Begin);
 
-                            byte[] osha = GetHash(br, item.Size);
-                            byte[] isha = null;
-                            string testpath = System.IO.Path.Combine(Path, item.Filename);
-                            using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
-                            {
-                                isha = sha.ComputeHash(br2.BaseStream);
-                            }
-                            if (isha == null)
-                            {
-                                throw new Exception($"failed to verify ({testpath}) sha1 value is null");
-                            }
-                            else if (!isha.SequenceEqual(osha))
-                            {
-                                throw new Exception($"failed to verify ({testpath}) sha1 mismatch \n" +
-                                    $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
-                                    $"offset: {item.Offset}\n" +
-                                    $"size:   {item.Size}");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Verified ({testpath}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                                byte[] osha = GetHash(br, item.Size);
+                                byte[] isha = null;
+                                string testpath = System.IO.Path.Combine(Path_, item.Filename);
+                                using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                                {
+                                    isha = sha.ComputeHash(br2.BaseStream);
+                                }
+                                if (isha == null)
+                                {
+                                    throw new Exception($"failed to verify ({testpath}) sha1 value is null");
+                                }
+                                else if (!isha.SequenceEqual(osha))
+                                {
+                                    throw new Exception($"failed to verify ({testpath}) sha1 mismatch \n" +
+                                        $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
+                                        $"offset: {item.Offset}\n" +
+                                        $"size:   {item.Size}");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Verified ({testpath}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                                }
                             }
                         }
                     }
                 }
-            }
-            return System.IO.Path.GetDirectoryName(path);
+            return System.IO.Path.GetDirectoryName(Out);
         }
     }
 }
