@@ -75,6 +75,11 @@
             this.btnMergeSrcBrowse = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
+            this.lvMergeInput = new System.Windows.Forms.ListView();
+            this.btnMergeInputBrowse = new System.Windows.Forms.Button();
+            this.btnMergeInputRemove = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
             this.tabControl.SuspendLayout();
             this.tpExtract.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -89,6 +94,8 @@
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel7.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.tableLayoutPanel8.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
@@ -192,6 +199,7 @@
             // 
             // txtZZZ_in
             // 
+            this.txtZZZ_in.AllowDrop = true;
             this.txtZZZ_in.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtZZZ_in.Location = new System.Drawing.Point(3, 3);
             this.txtZZZ_in.Multiline = true;
@@ -199,6 +207,8 @@
             this.txtZZZ_in.Size = new System.Drawing.Size(432, 47);
             this.txtZZZ_in.TabIndex = 2;
             this.txtZZZ_in.TextChanged += new System.EventHandler(this.txtZZZ_in_TextChanged);
+            this.txtZZZ_in.DragEnter += new System.Windows.Forms.DragEventHandler(this.Item_DragEnter);
+            this.txtZZZ_in.DragOver += new System.Windows.Forms.DragEventHandler(this.txtZZZ_in_DragOver);
             // 
             // label2
             // 
@@ -277,6 +287,7 @@
             // 
             // txtZZZ_out
             // 
+            this.txtZZZ_out.AllowDrop = true;
             this.txtZZZ_out.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtZZZ_out.Location = new System.Drawing.Point(3, 3);
             this.txtZZZ_out.Multiline = true;
@@ -284,6 +295,8 @@
             this.txtZZZ_out.Size = new System.Drawing.Size(432, 122);
             this.txtZZZ_out.TabIndex = 1;
             this.txtZZZ_out.TextChanged += new System.EventHandler(this.txtZZZ_in_TextChanged);
+            this.txtZZZ_out.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtZZZ_out_DragDrop);
+            this.txtZZZ_out.DragEnter += new System.Windows.Forms.DragEventHandler(this.Item_DragEnter);
             // 
             // lblZZZ_out
             // 
@@ -386,6 +399,7 @@
             // 
             // txtBrowseZZZWrite_OUT
             // 
+            this.txtBrowseZZZWrite_OUT.AllowDrop = true;
             this.txtBrowseZZZWrite_OUT.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBrowseZZZWrite_OUT.Location = new System.Drawing.Point(3, 3);
             this.txtBrowseZZZWrite_OUT.Multiline = true;
@@ -393,6 +407,8 @@
             this.txtBrowseZZZWrite_OUT.Size = new System.Drawing.Size(432, 75);
             this.txtBrowseZZZWrite_OUT.TabIndex = 2;
             this.txtBrowseZZZWrite_OUT.TextChanged += new System.EventHandler(this.txtBrowseFolderWrite_IN_TextChanged);
+            this.txtBrowseZZZWrite_OUT.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtBrowseZZZWrite_OUT_DragDrop);
+            this.txtBrowseZZZWrite_OUT.DragEnter += new System.Windows.Forms.DragEventHandler(this.Item_DragEnter);
             // 
             // label7
             // 
@@ -468,6 +484,7 @@
             // 
             // txtBrowseFolderWrite_IN
             // 
+            this.txtBrowseFolderWrite_IN.AllowDrop = true;
             this.txtBrowseFolderWrite_IN.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBrowseFolderWrite_IN.Location = new System.Drawing.Point(3, 3);
             this.txtBrowseFolderWrite_IN.Multiline = true;
@@ -475,6 +492,8 @@
             this.txtBrowseFolderWrite_IN.Size = new System.Drawing.Size(432, 80);
             this.txtBrowseFolderWrite_IN.TabIndex = 1;
             this.txtBrowseFolderWrite_IN.TextChanged += new System.EventHandler(this.txtBrowseFolderWrite_IN_TextChanged);
+            this.txtBrowseFolderWrite_IN.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtBrowseFolderWrite_IN_DragDrop);
+            this.txtBrowseFolderWrite_IN.DragEnter += new System.Windows.Forms.DragEventHandler(this.Item_DragEnter);
             // 
             // lblBrowseFolderWrite_IN
             // 
@@ -557,6 +576,7 @@
             this.btnExcuteMerge.TabIndex = 5;
             this.btnExcuteMerge.Text = "E&xecute";
             this.btnExcuteMerge.UseVisualStyleBackColor = true;
+            this.btnExcuteMerge.Click += new System.EventHandler(this.btnExcuteMerge_Click);
             // 
             // tabControl1
             // 
@@ -609,6 +629,7 @@
             this.btnSrcOther.TabIndex = 3;
             this.btnSrcOther.Text = "Other";
             this.btnSrcOther.UseVisualStyleBackColor = true;
+            this.btnSrcOther.Click += new System.EventHandler(this.btnSrcOther_Click);
             // 
             // btnSrcMain
             // 
@@ -619,22 +640,25 @@
             this.btnSrcMain.TabIndex = 2;
             this.btnSrcMain.Text = "Main";
             this.btnSrcMain.UseVisualStyleBackColor = true;
+            this.btnSrcMain.Click += new System.EventHandler(this.btnSrcMain_Click);
             // 
             // txtMergeSource
             // 
+            this.txtMergeSource.AllowDrop = true;
             this.tableLayoutPanel7.SetColumnSpan(this.txtMergeSource, 2);
             this.txtMergeSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtMergeSource.Enabled = false;
             this.txtMergeSource.Location = new System.Drawing.Point(255, 3);
             this.txtMergeSource.Multiline = true;
             this.txtMergeSource.Name = "txtMergeSource";
             this.txtMergeSource.Size = new System.Drawing.Size(508, 200);
             this.txtMergeSource.TabIndex = 0;
+            this.txtMergeSource.TextChanged += new System.EventHandler(this.txtMergeSource_TextChanged);
+            this.txtMergeSource.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtMergeSource_DragDrop);
+            this.txtMergeSource.DragEnter += new System.Windows.Forms.DragEventHandler(this.Item_DragEnter);
             // 
             // btnMergeSrcBrowse
             // 
             this.btnMergeSrcBrowse.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnMergeSrcBrowse.Enabled = false;
             this.btnMergeSrcBrowse.Location = new System.Drawing.Point(3, 209);
             this.btnMergeSrcBrowse.Name = "btnMergeSrcBrowse";
             this.btnMergeSrcBrowse.Size = new System.Drawing.Size(246, 63);
@@ -656,6 +680,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.tableLayoutPanel8);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -663,6 +688,76 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Input ZZZ Files";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel8
+            // 
+            this.tableLayoutPanel8.ColumnCount = 3;
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
+            this.tableLayoutPanel8.Controls.Add(this.lvMergeInput, 1, 0);
+            this.tableLayoutPanel8.Controls.Add(this.btnMergeInputBrowse, 1, 1);
+            this.tableLayoutPanel8.Controls.Add(this.btnMergeInputRemove, 2, 1);
+            this.tableLayoutPanel8.Controls.Add(this.label10, 0, 0);
+            this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel8.Name = "tableLayoutPanel8";
+            this.tableLayoutPanel8.RowCount = 2;
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 80F));
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel8.Size = new System.Drawing.Size(766, 275);
+            this.tableLayoutPanel8.TabIndex = 0;
+            // 
+            // lvMergeInput
+            // 
+            this.lvMergeInput.AllowDrop = true;
+            this.tableLayoutPanel8.SetColumnSpan(this.lvMergeInput, 2);
+            this.lvMergeInput.Cursor = System.Windows.Forms.Cursors.Default;
+            this.lvMergeInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvMergeInput.HideSelection = false;
+            this.lvMergeInput.Location = new System.Drawing.Point(255, 3);
+            this.lvMergeInput.Name = "lvMergeInput";
+            this.lvMergeInput.Size = new System.Drawing.Size(508, 214);
+            this.lvMergeInput.TabIndex = 3;
+            this.lvMergeInput.UseCompatibleStateImageBehavior = false;
+            this.lvMergeInput.View = System.Windows.Forms.View.SmallIcon;
+            this.lvMergeInput.DragDrop += new System.Windows.Forms.DragEventHandler(this.lvMergeInput_DragDrop);
+            this.lvMergeInput.DragEnter += new System.Windows.Forms.DragEventHandler(this.Item_DragEnter);
+            this.lvMergeInput.KeyUp += new System.Windows.Forms.KeyEventHandler(this.lvMergeInput_KeyUp);
+            // 
+            // btnMergeInputBrowse
+            // 
+            this.btnMergeInputBrowse.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnMergeInputBrowse.Location = new System.Drawing.Point(255, 223);
+            this.btnMergeInputBrowse.Name = "btnMergeInputBrowse";
+            this.btnMergeInputBrowse.Size = new System.Drawing.Size(246, 49);
+            this.btnMergeInputBrowse.TabIndex = 4;
+            this.btnMergeInputBrowse.Text = "Browse";
+            this.btnMergeInputBrowse.UseVisualStyleBackColor = true;
+            this.btnMergeInputBrowse.Click += new System.EventHandler(this.btnMergeInputBrowse_Click);
+            // 
+            // btnMergeInputRemove
+            // 
+            this.btnMergeInputRemove.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnMergeInputRemove.Location = new System.Drawing.Point(507, 223);
+            this.btnMergeInputRemove.Name = "btnMergeInputRemove";
+            this.btnMergeInputRemove.Size = new System.Drawing.Size(256, 49);
+            this.btnMergeInputRemove.TabIndex = 5;
+            this.btnMergeInputRemove.Text = "Remove";
+            this.btnMergeInputRemove.UseVisualStyleBackColor = true;
+            this.btnMergeInputRemove.Click += new System.EventHandler(this.btnMergeInputRemove_Click);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label10.Location = new System.Drawing.Point(3, 0);
+            this.label10.Name = "label10";
+            this.tableLayoutPanel8.SetRowSpan(this.label10, 2);
+            this.label10.Size = new System.Drawing.Size(246, 275);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "Mod zzz files to be merged into the source file.";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // Form1
             // 
@@ -698,6 +793,9 @@
             this.tabPage1.ResumeLayout(false);
             this.tableLayoutPanel7.ResumeLayout(false);
             this.tableLayoutPanel7.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.tableLayoutPanel8.ResumeLayout(false);
+            this.tableLayoutPanel8.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -750,6 +848,11 @@
         private System.Windows.Forms.Button btnMergeSrcBrowse;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
+        private System.Windows.Forms.ListView lvMergeInput;
+        private System.Windows.Forms.Button btnMergeInputBrowse;
+        private System.Windows.Forms.Button btnMergeInputRemove;
+        private System.Windows.Forms.Label label10;
     }
 }
 

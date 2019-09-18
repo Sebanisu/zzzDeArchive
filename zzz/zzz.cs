@@ -111,7 +111,7 @@ namespace ZzzFile
             return r;
         }
 
-        private static void EliminateDuplicates(ref Header @out, Header[] @in,bool skipwarning = false)
+        private static void EliminateDuplicates(ref Header @out, Header[] @in, bool skipwarning = false)
         {
             Logger.WriteLine("Eliminating Duplicates for input zzz files from other input zzz files...");
             for (int i = 0; i < @in.Length; i++)
@@ -120,7 +120,7 @@ namespace ZzzFile
 
             Logger.WriteLine("Eliminating Duplicates for input zzz files from the original zzz file...");
             for (int i = 0; i < @in.Length; i++)
-                EliminateDuplicates(ref @out, @in[i],skipwarning);
+                EliminateDuplicates(ref @out, @in[i], skipwarning);
         }
 
         private static void EliminateDuplicates(ref Header @out, Header @in, bool skipwarning)
@@ -153,7 +153,12 @@ namespace ZzzFile
                     $"The game may ignore any new files it is not expecting...");
                 Console.ForegroundColor = ConsoleColor.White;
                 Logger.WriteLine("\nPress any key to continue...");
-                Console.ReadKey();
+                try
+                {
+                    Console.ReadKey();
+                }
+                catch
+                { }
                 Logger.WriteLine("-- List of new files --");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 foreach (FileData i in in2)
@@ -162,7 +167,12 @@ namespace ZzzFile
                 }
                 Console.ForegroundColor = ConsoleColor.White;
                 Logger.WriteLine("\nPress any key to continue...");
-                Console.ReadKey();
+                try
+                {
+                    Console.ReadKey();
+                }
+                catch
+                { }
             }
             @out.Count = out2.Count;
             @out.Data = out2.ToArray();
@@ -197,7 +207,7 @@ namespace ZzzFile
         {
             Logger.WriteLine("Merging Headers");
             Header r = new Header();
-            EliminateDuplicates(ref @out, @in,skipwarning);
+            EliminateDuplicates(ref @out, @in, skipwarning);
 
             for (int i = 0; i < @in.Length; i++)
                 Merge(ref @out, ref @in[i], ref r);
@@ -343,6 +353,8 @@ namespace ZzzFile
             return sha;
         }
 
+        private static bool IsMainOrOther(string main, string x) => Path.GetFileName(x).Equals(main, StringComparison.OrdinalIgnoreCase);
+
         private static void ReadUInt(BinaryWriter bw, BinaryReader br, uint size)
         {
             while (size > 0)
@@ -359,6 +371,52 @@ namespace ZzzFile
             {
                 throw new Exception($"expected filesize ({head.ExpectedFileSize}) != resulting filesize ({stream.Length})");
             }
+        }
+
+        private bool IsMainOrOther(string x) => IsMainOrOther(main, x) || IsMainOrOther(other, x);
+
+        private void Merge(List<string> f1, string main, string arg = null)
+        {
+            if (f1.Count() > 1)
+            {
+                if (!string.IsNullOrWhiteSpace(Main))
+                {
+                    Path_ = arg;
+                    In = f1;
+                    Out = Path.Combine(od, main);
+                }
+                else
+                {
+                    int ind = f1.FindIndex(x => IsMainOrOther(main, x));
+                    if (ind >= 0)
+                    {
+                        Path_ = f1[ind];
+                        f1.RemoveAt(ind);
+                        In = f1;
+                        Out = Path.Combine(od, main);
+                    }
+                    else
+                    {
+                        Path_ = f1.First();
+                        f1.Remove(Path_);
+                        In = f1;
+                        Out = Path.Combine(od, $"part_main");
+                    }
+                }
+                Merge();
+            }
+        }
+
+        private void Write(List<string> d1)
+        {
+            string path = Path_;
+            foreach (string d in d1)
+            {
+                Path_ = d;
+                Out = $"{d}.zzz";
+                Write();
+            }
+            Path_ = path;
         }
 
         #endregion Methods
@@ -378,6 +436,8 @@ namespace ZzzFile
             sha = new SHA1CryptoServiceProvider();
         }
 
+        #endregion Constructors
+
         //public Zzz(string path, List<string> @in, string @out = null)
         //{
         //    sha = new SHA1CryptoServiceProvider();
@@ -386,15 +446,15 @@ namespace ZzzFile
         //    In = @in;
         //}
 
-        #endregion Constructors
-
         #region Properties
 
         public string id1 { get; }
         public string id2 { get; }
         public List<string> In { get => _in; set => _in = value; }
         public string main { get; }
+        public string Main { get; set; }
         public string od { get; }
+        public string Other { get; set; }
         public string Out
         {
             get
@@ -417,16 +477,13 @@ namespace ZzzFile
             set => _out = value;
         }
 
-        public bool SkipWarning { get; set; } = false;
         public string Path_ { get => _path; set => _path = value; }
-        public string Main { get; set; }
-        public string Other { get; set; }
+        public bool SkipWarning { get; set; } = false;
 
         #endregion Properties
 
         public string Extract()
         {
-
             Logger.WriteLine($"Extracting {In.First()} to {Path_}");
             Header head;
             using (FileStream fs = File.Open(In.First(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -469,59 +526,10 @@ namespace ZzzFile
             Write(d2);
             List<string> f1 = Directory.EnumerateFiles(id1).ToList();
             List<string> f2 = Directory.EnumerateFiles(id2).ToList();
-            Merge(f1, main,Main);
-            Merge(f2, other,Other);
+            Merge(f1, main, Main);
+            Merge(f2, other, Other);
             return od;
         }
-
-        private void Write(List<string> d1)
-        {
-            var path = Path_;
-            foreach (var d in d1)
-            {
-                Path_ = d;
-                Out = $"{d}.zzz";
-                Write();
-            }
-            Path_ = path;
-        }
-
-        private void Merge(List<string> f1, string main,string arg = null)
-        {
-            if (f1.Count() > 1)
-            {
-
-                if (!string.IsNullOrWhiteSpace(Main))
-                {
-                    Path_ = arg;
-                    In = f1;
-                    Out = Path.Combine(od, main);
-                }
-                else
-                {
-                    int ind = f1.FindIndex(x => IsMainOrOther(main, x));
-                    if (ind >= 0)
-                    {
-                        Path_ = f1[ind];
-                        f1.RemoveAt(ind);
-                        In = f1;
-                        Out = Path.Combine(od, main);
-                    }
-                    else
-                    {
-                        Path_ = f1.First();
-                        f1.Remove(Path_);
-                        In = f1;
-                        Out = Path.Combine(od, $"part_main");
-                    }
-                }
-                Merge();
-            }
-        }
-
-        private bool IsMainOrOther(string x) => IsMainOrOther(main, x) || IsMainOrOther(other, x);
-
-        private static bool IsMainOrOther(string main, string x) => Path.GetFileName(x).Equals(main, StringComparison.OrdinalIgnoreCase);
 
         public string Merge()
         {
@@ -641,7 +649,6 @@ namespace ZzzFile
 
         public string Write()
         {
-
             Logger.WriteLine($"Writing {Path_} to {Out}");
             Header head = Header.Read(Path_, out string[] files, Path_);
             Logger.WriteLine(head.ToString());
