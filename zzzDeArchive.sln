@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zzz", "zzz\zzz.csproj", "{B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logger", "Logger\Logger.csproj", "{DBBDA1CB-61E1-4021-844C-C820270A929A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zzzDeArchive-WinForms", "zzzDeArchive-WinForms\zzzDeArchive-WinForms.csproj", "{AF32319A-47C8-4D1F-990D-1FA2D45EC709}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DBBDA1CB-61E1-4021-844C-C820270A929A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBBDA1CB-61E1-4021-844C-C820270A929A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBBDA1CB-61E1-4021-844C-C820270A929A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF32319A-47C8-4D1F-990D-1FA2D45EC709}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF32319A-47C8-4D1F-990D-1FA2D45EC709}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF32319A-47C8-4D1F-990D-1FA2D45EC709}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF32319A-47C8-4D1F-990D-1FA2D45EC709}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
