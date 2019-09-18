@@ -426,6 +426,8 @@ namespace ZzzFile
 
         public string Extract()
         {
+
+            Logger.WriteLine($"Extracting {In.First()} to {Path_}");
             Header head;
             using (FileStream fs = File.Open(In.First(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -639,6 +641,8 @@ namespace ZzzFile
 
         public string Write()
         {
+
+            Logger.WriteLine($"Writing {Path_} to {Out}");
             Header head = Header.Read(Path_, out string[] files, Path_);
             Logger.WriteLine(head.ToString());
             if (Out != null)

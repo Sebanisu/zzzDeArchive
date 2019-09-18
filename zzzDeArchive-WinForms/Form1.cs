@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using ZzzFile;
+using _Logger;
 
 namespace zzzDeArchive_WinForms
 {
@@ -216,16 +217,19 @@ namespace zzzDeArchive_WinForms
             zzz.Write();
             try
             {
-                btnExcuteWrite.Text = "Writing...";
+                btnExcuteWrite.Text = "Coping...";
+                Logger.WriteLine($"Coping {zzz.Out} to {lblBrowseZZZWrite_OUT.Text}");
                 Application.DoEvents();
                 File.Copy(zzz.Out, lblBrowseZZZWrite_OUT.Text, true);
                 openfolder(Path.GetDirectoryName(lblBrowseZZZWrite_OUT.Text));
+                Logger.WriteLine($"Deleting {zzz.Out}");
                 File.Delete(zzz.Out);
             }
             catch
             {
                 openfolder(Path.GetDirectoryName(zzz.Out));
                 openfolder(Path.GetDirectoryName(lblBrowseZZZWrite_OUT.Text));
+                Logger.WriteLine($"Coping Failed...");
                 MessageBox.Show($"File is named:\n{Path.GetFileName(zzz.Out)}", "File Copy Failed");                
             }           
             btnExcuteWrite.Text = strtmp;
