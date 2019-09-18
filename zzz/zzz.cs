@@ -1,4 +1,5 @@
-﻿using System;
+﻿using _Logger;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,24 +111,24 @@ namespace ZzzFile
             return r;
         }
 
-        private static void EliminateDuplicates(ref Header @out, Header[] @in)
+        private static void EliminateDuplicates(ref Header @out, Header[] @in,bool skipwarning = false)
         {
-            Console.WriteLine("Eliminating Duplicates for input zzz files from other input zzz files...");
+            Logger.WriteLine("Eliminating Duplicates for input zzz files from other input zzz files...");
             for (int i = 0; i < @in.Length; i++)
                 for (int j = i + 1; j < @in.Length; j++)
                     EliminateDuplicates(ref @in[i], @in[j], true);
 
-            Console.WriteLine("Eliminating Duplicates for input zzz files from the original zzz file...");
+            Logger.WriteLine("Eliminating Duplicates for input zzz files from the original zzz file...");
             for (int i = 0; i < @in.Length; i++)
-                EliminateDuplicates(ref @out, @in[i]);
+                EliminateDuplicates(ref @out, @in[i],skipwarning);
         }
 
-        private static void EliminateDuplicates(ref Header @out, Header @in, bool skipwarning = false)
+        private static void EliminateDuplicates(ref Header @out, Header @in, bool skipwarning)
         {
             List<FileData> out2 = new List<FileData>(@out.Data);
             List<FileData> in2 = new List<FileData>();
             // grab the files that are unique to @out. Replacing that bit of the header
-            //Console.WriteLine("Eliminating Duplicates...");
+            //Logger.WriteLine("Eliminating Duplicates...");
             //for (int i = 0; i < out2.Count; i++)
             //{
             //    if (@in.Data.Any(x => x.Filename.Equals(out2[i].Filename, StringComparison.OrdinalIgnoreCase)))
@@ -143,24 +144,24 @@ namespace ZzzFile
                     in2.Add(@in.Data[i]);
             }
             if (@out.Count - out2.Count > 0)
-                Console.WriteLine($"Eliminated {@out.Count - out2.Count}");
+                Logger.WriteLine($"Eliminated {@out.Count - out2.Count}");
             if (@out.Count - out2.Count < @in.Count && !skipwarning)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"WARNING you are not replacing all {@in.Count} files. \n" +
+                Logger.WriteLine($"WARNING you are not replacing all {@in.Count} files. \n" +
                     $"There are going to be {Math.Abs(@out.Count - out2.Count - @in.Count)} files added!\n" +
                     $"The game may ignore any new files it is not expecting...");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("\nPress any key to continue...");
+                Logger.WriteLine("\nPress any key to continue...");
                 Console.ReadKey();
-                Console.WriteLine("-- List of new files --");
+                Logger.WriteLine("-- List of new files --");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 foreach (FileData i in in2)
                 {
-                    Console.WriteLine(i);
+                    Logger.WriteLine(i.ToString());
                 }
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("\nPress any key to continue...");
+                Logger.WriteLine("\nPress any key to continue...");
                 Console.ReadKey();
             }
             @out.Count = out2.Count;
@@ -192,11 +193,11 @@ namespace ZzzFile
 
         #endregion Properties
 
-        public static Header Merge(ref Header @out, ref Header[] @in)
+        public static Header Merge(ref Header @out, ref Header[] @in, bool skipwarning = false)
         {
-            Console.WriteLine("Merging Headers");
+            Logger.WriteLine("Merging Headers");
             Header r = new Header();
-            EliminateDuplicates(ref @out, @in);
+            EliminateDuplicates(ref @out, @in,skipwarning);
 
             for (int i = 0; i < @in.Length; i++)
                 Merge(ref @out, ref @in[i], ref r);
@@ -281,10 +282,10 @@ namespace ZzzFile
             if (Data != null)
                 foreach (FileData r in Data)
                 {
-                    Console.WriteLine($"Writing FileData {r}");
+                    Logger.WriteLine($"Writing FileData {r}");
                     r.Write(bw);
                 }
-            Console.WriteLine($"Header data written {TotalBytes} bytes");
+            Logger.WriteLine($"Header data written {TotalBytes} bytes");
         }
     }
 
@@ -316,7 +317,7 @@ namespace ZzzFile
                 catch (IOException e)
                 {
                     fs = null;
-                    Console.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
+                    Logger.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
                     path = System.IO.Path.Combine(
                         System.IO.Path.GetDirectoryName(path_),
                         $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
@@ -416,7 +417,10 @@ namespace ZzzFile
             set => _out = value;
         }
 
+        public bool SkipWarning { get; set; } = false;
         public string Path_ { get => _path; set => _path = value; }
+        public string Main { get; set; }
+        public string Other { get; set; }
 
         #endregion Properties
 
@@ -428,12 +432,12 @@ namespace ZzzFile
                 using (BinaryReader br = new BinaryReader(fs))
                 {
                     head = Header.Read(br);
-                    Console.WriteLine(head);
+                    Logger.WriteLine(head.ToString());
 
                     //Directory.CreateDirectory(_path);
                     foreach (FileData d in head.Data)
                     {
-                        Console.WriteLine($"Writing {d}");
+                        Logger.WriteLine($"Writing {d}");
                         string path = System.IO.Path.Combine(Path_, d.Filename);
                         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
                         using (FileStream fso = File.Create(path))
@@ -451,7 +455,7 @@ namespace ZzzFile
                     }
                 }
             }
-            Console.WriteLine($"Saved to: {Path_}");
+            Logger.WriteLine($"Saved to: {Path_}");
             return Path_;
         }
 
@@ -463,8 +467,8 @@ namespace ZzzFile
             Write(d2);
             List<string> f1 = Directory.EnumerateFiles(id1).ToList();
             List<string> f2 = Directory.EnumerateFiles(id2).ToList();
-            Merge(f1, main);
-            Merge(f2, other);
+            Merge(f1, main,Main);
+            Merge(f2, other,Other);
             return od;
         }
 
@@ -480,25 +484,34 @@ namespace ZzzFile
             Path_ = path;
         }
 
-        private void Merge(List<string> f1, string main)
+        private void Merge(List<string> f1, string main,string arg = null)
         {
             if (f1.Count() > 1)
             {
 
-                int ind = f1.FindIndex(x => IsMainOrOther(main, x));
-                if (ind >= 0)
+                if (!string.IsNullOrWhiteSpace(Main))
                 {
-                    Path_ = f1[ind];
-                    f1.RemoveAt(ind);
+                    Path_ = arg;
                     In = f1;
                     Out = Path.Combine(od, main);
                 }
                 else
                 {
-                    Path_ = f1.First();
-                    f1.Remove(Path_);
-                    In = f1;
-                    Out = Path.Combine(od, $"part_main");
+                    int ind = f1.FindIndex(x => IsMainOrOther(main, x));
+                    if (ind >= 0)
+                    {
+                        Path_ = f1[ind];
+                        f1.RemoveAt(ind);
+                        In = f1;
+                        Out = Path.Combine(od, main);
+                    }
+                    else
+                    {
+                        Path_ = f1.First();
+                        f1.Remove(Path_);
+                        In = f1;
+                        Out = Path.Combine(od, $"part_main");
+                    }
                 }
                 Merge();
             }
@@ -513,7 +526,7 @@ namespace ZzzFile
             if (Out != null) { };
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
-            Console.WriteLine($"Opening {Path_}");
+            Logger.WriteLine($"Opening {Path_}");
             using (br._out = new BinaryReader(File.Open(Path_, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
             {
                 head._out = Header.Read(br._out);
@@ -522,26 +535,26 @@ namespace ZzzFile
                 head._in = new Header[In.Count];
                 for (int i = 0; i < In.Count; i++)
                 {
-                    Console.WriteLine($"Opening {In[i]}");
+                    Logger.WriteLine($"Opening {In[i]}");
                     br._in[i] = new BinaryReader(File.Open(In[i], FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
                     head._in[i] = Header.Read(br._in[i]);
                     TestSize(head._in[i], br._in[i].BaseStream);
                 }
                 (Header head, BinaryWriter bw, BinaryReader br) merged;
 
-                merged.head = Header.Merge(ref head._out, ref head._in);
+                merged.head = Header.Merge(ref head._out, ref head._in, SkipWarning);
 
                 using (FileStream fs = GetFs(ref _out))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
                     merged.head.Write(merged.bw);
-                    Console.WriteLine($"Writing raw file data from {Path_}");
+                    Logger.WriteLine($"Writing raw file data from {Path_}");
                     Write(br._out, head._out.Data);
 
                     for (int i = 0; i < In.Count; i++)
                     {
-                        Console.WriteLine($"Writing raw file data from {In[i]}");
+                        Logger.WriteLine($"Writing raw file data from {In[i]}");
                         Write(br._in[i], head._in[i].Data);
                     }
 
@@ -550,12 +563,12 @@ namespace ZzzFile
                         foreach (FileData i in data)
                         {
                             _br.BaseStream.Seek(i.Offset, SeekOrigin.Begin);
-                            Console.WriteLine($"Writing {i.Filename} {i.Size} bytes");
+                            Logger.WriteLine($"Writing {i.Filename} {i.Size} bytes");
                             ReadUInt(merged.bw, _br, i.Size);
                         }
                     }
-                    Console.WriteLine($"Saved to: {Out}");
-                    Console.WriteLine($"Verifing output");
+                    Logger.WriteLine($"Saved to: {Out}");
+                    Logger.WriteLine($"Verifing output");
                     TestSize(merged.head, merged.bw.BaseStream);
 
                     foreach (FileData item in merged.head.Data)
@@ -612,7 +625,7 @@ namespace ZzzFile
                         }
                         else
                         {
-                            Console.WriteLine($"Verified ({item.Filename}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                            Logger.WriteLine($"Verified ({item.Filename}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
                         }
                     }
                 }
@@ -627,18 +640,18 @@ namespace ZzzFile
         public string Write()
         {
             Header head = Header.Read(Path_, out string[] files, Path_);
-            Console.WriteLine(head);
+            Logger.WriteLine(head.ToString());
             if (Out != null)
                 using (FileStream fs = GetFs(ref _out))
                 {
                     using (BinaryWriter bw = new BinaryWriter(fs))
                     {
                         head.Write(bw);
-                        Console.WriteLine($"Writing raw file data from {Path_}");
+                        Logger.WriteLine($"Writing raw file data from {Path_}");
                         foreach (string file in files)
                         {
                             FileInfo fi = new FileInfo(file);
-                            Console.WriteLine($"Writing {file} {fi.Length} bytes");
+                            Logger.WriteLine($"Writing {file} {fi.Length} bytes");
                             using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                             {
                                 byte[] buffer;
@@ -651,8 +664,8 @@ namespace ZzzFile
                             }
                         }
 
-                        Console.WriteLine($"Saved to: {Out}");
-                        Console.WriteLine($"Verifing output");
+                        Logger.WriteLine($"Saved to: {Out}");
+                        Logger.WriteLine($"Verifing output");
                         TestSize(head, bw.BaseStream);
                         using (BinaryReader br = new BinaryReader(fs))
                         {
@@ -691,7 +704,7 @@ namespace ZzzFile
                                 }
                                 else
                                 {
-                                    Console.WriteLine($"Verified ({testpath}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                                    Logger.WriteLine($"Verified ({testpath}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
                                 }
                             }
                         }

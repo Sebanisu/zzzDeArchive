@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ZzzFile;
+using _Logger;
 
 namespace ZzzConsole
 {
@@ -27,17 +28,17 @@ namespace ZzzConsole
             const string title = "\n     Extract zzz Screen\n";
             do
             {
-                Console.Write(
+                Logger.Write(
                     title +
                     "Enter the path to zzz file: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
                 path = Path.GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
-                    Console.WriteLine("File doesn't exist\n");
+                    Logger.WriteLine("File doesn't exist\n");
                 else break;
             }
             while (true);
@@ -45,18 +46,18 @@ namespace ZzzConsole
             zzz.In.Add(path);
             do
             {
-                Console.Write(
+                Logger.Write(
                     title +
                     "Enter the path to extract contents: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
                 path = Path.GetFullPath(path);
-                Console.WriteLine();
+                Logger.WriteLine();
                 Directory.CreateDirectory(path);
                 good = Directory.Exists(path);
                 if (!good)
-                    Console.WriteLine("Directory doesn't exist\n");
+                    Logger.WriteLine("Directory doesn't exist\n");
                 else break;
             }
             while (true);
@@ -68,12 +69,30 @@ namespace ZzzConsole
         {
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count == 1 &&
+            int ind = Args.FindIndex(x => x.Equals("-skipwarning", StringComparison.OrdinalIgnoreCase));
+            if (ind >= 0)
+            {
+                zzz.SkipWarning = true;
+                Args.RemoveAt(ind);
+            }
+
+            if ((Args.Count == 1 || Args.Count == 3) &&
                 (Args[0].Equals("-foldermerge", StringComparison.OrdinalIgnoreCase) ||
                 Args[0].Equals("-mergefolder", StringComparison.OrdinalIgnoreCase)) &&
                 (Directory.EnumerateFiles(zzz.id1).Count() > 1 ||
-                Directory.EnumerateFiles(zzz.id2).Count() > 1))
+                Directory.EnumerateFiles(zzz.id2).Count() > 1 ||
+                Directory.EnumerateDirectories(zzz.id1).Count() > 1 ||
+                Directory.EnumerateDirectories(zzz.id2).Count() > 1))
             {
+                if (Args.Count == 3)
+                {
+                    string path = Args[1].Trim();
+                    path = Path.GetFullPath(path);
+                    zzz.Main = path;
+                    path = Args[2].Trim();
+                    path = Path.GetFullPath(path);
+                    zzz.Other = path;
+                }
                 zzz.FolderMerge();
             }
             else if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
@@ -86,7 +105,7 @@ namespace ZzzConsole
                     if (File.Exists(Args[i]) && !zzz.In.Contains(Args[i]))
                         zzz.In.Add(Args[i]);
                     else
-                        Console.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
+                        Logger.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
                 }
                 if (zzz.In.Count > 0)
                     zzz.Merge();
@@ -102,7 +121,7 @@ namespace ZzzConsole
                     zzz.Extract();
                 }
                 else
-                    Console.WriteLine("Invalid Directory");
+                    Logger.WriteLine("Invalid Directory");
             }
             else if (Args.Count == 1 && Directory.Exists(Args[0] = Path.GetFullPath(Args[0])))
             {
@@ -155,21 +174,21 @@ namespace ZzzConsole
             ConsoleKeyInfo k;
             do
             {
-                Console.Write(
+                Logger.Write(
                     "            --- Welcome to the zzzDeArchive 0.1.7.2 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
                     "3) Merge - Write unique data from two or more zzz files into one zzz file.\n");
                 if (Directory.EnumerateFiles(zzz.id1).Count() > 1 || Directory.EnumerateFiles(zzz.id2).Count() > 1)
-                    Console.Write("4) FolderMerge - Automaticly merge files in the IN subfolder. To the OUT folder\n");
-                Console.Write(
+                    Logger.Write("4) FolderMerge - Automaticly merge files in the IN subfolder. To the OUT folder\n");
+                Logger.Write(
                     "\n" +
                     "Escape) Exit\n\n" +
 
                     "  Select: ");
                 k = Console.ReadKey();
-                Console.WriteLine();
+                Logger.WriteLine();
                 if (k.Key == ConsoleKey.Escape)
                     Environment.Exit(0);
             }
@@ -184,22 +203,22 @@ namespace ZzzConsole
             const string title = "\n     Merge zzz Screen\n";
             do
             {
-                Console.Write(
+                Logger.Write(
                     title +
                     "  Only unchanged data will be kept, rest will be replaced...\n" +
                     "Enter the path to zzz file with ");
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("Original/OLD data");
+                Logger.Write("Original/OLD data");
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(": ");
+                Logger.Write(": ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
                 path = Path.GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
-                    Console.WriteLine("File doesn't exist\n");
+                    Logger.WriteLine("File doesn't exist\n");
                 else break;
             }
             while (true);
@@ -209,27 +228,27 @@ namespace ZzzConsole
             {
                 if (zzz.In.Count == 0)
                 {
-                    Console.Write(
+                    Logger.Write(
                         "Enter the path to a zzz file with ");
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("NEW data");
+                    Logger.Write("NEW data");
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.Write(": ");
+                    Logger.Write(": ");
                 }
                 else
                 {
-                    Console.Write($"Path to an additional zzz file or press enter to continue: ");
+                    Logger.Write($"Path to an additional zzz file or press enter to continue: ");
                 }
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     if (zzz.In.Count > 0)
                         break;
                     else
-                        Console.WriteLine("Need atleast 1 file you entered an empty value.");
+                        Logger.WriteLine("Need atleast 1 file you entered an empty value.");
                 }
                 else
                 {
@@ -238,10 +257,10 @@ namespace ZzzConsole
                     if (good)
                     {
                         zzz.In.Add(path);
-                        Console.WriteLine($"File added, {zzz.In.Count} total.");
+                        Logger.WriteLine($"File added, {zzz.In.Count} total.");
                     }
                     else
-                        Console.WriteLine("File doesn't exist or is already added.\n");
+                        Logger.WriteLine("File doesn't exist or is already added.\n");
                 }
             }
             while (true);
@@ -254,7 +273,7 @@ namespace ZzzConsole
             bool good = false;
             do
             {
-                Console.Write(
+                Logger.Write(
                     "\n  Test Writes zzz Debug Screen\n" +
                     "Warning! this is a test screen\n" +
                     "This will keep making zzz files till it's done or errors\n" +
@@ -262,18 +281,18 @@ namespace ZzzConsole
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
                 path = Path.GetFullPath(path);
                 good = Directory.Exists(path);
                 if (!good)
-                    Console.WriteLine("Directory doesn't exist\n");
+                    Logger.WriteLine("Directory doesn't exist\n");
                 else break;
             }
             while (true);
             LoadSubDirs(path);
             void LoadSubDirs(string dir)
             {
-                Console.WriteLine($"Testing: {dir}\n");
+                Logger.WriteLine($"Testing: {dir}\n");
                 string[] subdirectoryEntries = Directory.GetDirectories(dir);
                 zzz.Path_ = dir;
                 zzz.Write();
@@ -289,17 +308,17 @@ namespace ZzzConsole
             bool good = false;
             do
             {
-                Console.Write(
+                Logger.Write(
                     "\n     Write zzz Screen\n" +
                     "Enter the path of files to go into out.zzz: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
                 path = Path.GetFullPath(path);
                 good = Directory.Exists(path);
                 if (!good)
-                    Console.WriteLine("Directory doesn't exist\n");
+                    Logger.WriteLine("Directory doesn't exist\n");
                 else break;
             }
             while (true);
