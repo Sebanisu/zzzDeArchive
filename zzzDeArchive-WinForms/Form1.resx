@@ -117,4 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="label8.Text" xml:space="preserve">
+    <value>Choose a path and filename of your zzz file.
+
+Note this will write to temp folder then attempt to move to location.
+
+If not the temp folder will open and the file will be located in there.
+
+If possible this will overwrite the existing files.
+</value>
+  </data>
 </root>

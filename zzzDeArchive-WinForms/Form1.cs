@@ -235,5 +235,10 @@ namespace zzzDeArchive_WinForms
             btnExcuteWrite.Text = strtmp;
             btnExcuteWrite.Enabled = true;
         }
+
+        private void btnMergeSrcBrowse_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
