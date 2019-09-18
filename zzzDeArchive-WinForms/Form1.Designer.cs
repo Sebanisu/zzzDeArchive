@@ -32,20 +32,20 @@
             this.tpExtract = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.tpWrite = new System.Windows.Forms.TabPage();
-            this.tpMerge = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnZZZextractInBrowse = new System.Windows.Forms.Button();
+            this.btnMainExtractIN = new System.Windows.Forms.Button();
+            this.txtZZZ_in = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnOtherExtactIN = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.button4 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button5 = new System.Windows.Forms.Button();
+            this.btnZZZextractOUTbrowse = new System.Windows.Forms.Button();
+            this.txtZZZ_out = new System.Windows.Forms.TextBox();
+            this.btnExtractExecute = new System.Windows.Forms.Button();
+            this.tpWrite = new System.Windows.Forms.TabPage();
+            this.tpMerge = new System.Windows.Forms.TabPage();
             this.tabControl.SuspendLayout();
             this.tpExtract.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -87,7 +87,7 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button5, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.btnExtractExecute, 0, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -97,7 +97,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(786, 418);
             this.tableLayoutPanel1.TabIndex = 0;
-            this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
             // label1
             // 
@@ -105,10 +104,152 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(190, 199);
+            this.label1.Size = new System.Drawing.Size(190, 167);
             this.label1.TabIndex = 0;
             this.label1.Text = "Choose ZZZ to extract";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel2.Controls.Add(this.btnZZZextractInBrowse, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnMainExtractIN, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.txtZZZ_in, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label2, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.label3, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.btnOtherExtactIN, 1, 2);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(199, 3);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 3;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 34F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(584, 161);
+            this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // btnZZZextractInBrowse
+            // 
+            this.btnZZZextractInBrowse.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnZZZextractInBrowse.Location = new System.Drawing.Point(441, 3);
+            this.btnZZZextractInBrowse.Name = "btnZZZextractInBrowse";
+            this.btnZZZextractInBrowse.Size = new System.Drawing.Size(140, 47);
+            this.btnZZZextractInBrowse.TabIndex = 0;
+            this.btnZZZextractInBrowse.Text = "&Browse";
+            this.btnZZZextractInBrowse.UseVisualStyleBackColor = true;
+            this.btnZZZextractInBrowse.Click += new System.EventHandler(this.btnZZZextractInBrowse_Click);
+            // 
+            // btnMainExtractIN
+            // 
+            this.btnMainExtractIN.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnMainExtractIN.Location = new System.Drawing.Point(441, 56);
+            this.btnMainExtractIN.Name = "btnMainExtractIN";
+            this.btnMainExtractIN.Size = new System.Drawing.Size(140, 47);
+            this.btnMainExtractIN.TabIndex = 1;
+            this.btnMainExtractIN.Text = "&Set";
+            this.btnMainExtractIN.UseVisualStyleBackColor = true;
+            this.btnMainExtractIN.Click += new System.EventHandler(this.btnMain_Click);
+            // 
+            // txtZZZ_in
+            // 
+            this.txtZZZ_in.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtZZZ_in.Location = new System.Drawing.Point(3, 3);
+            this.txtZZZ_in.Multiline = true;
+            this.txtZZZ_in.Name = "txtZZZ_in";
+            this.txtZZZ_in.Size = new System.Drawing.Size(432, 47);
+            this.txtZZZ_in.TabIndex = 2;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label2.Location = new System.Drawing.Point(3, 53);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(432, 53);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "main.zzz";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label3.Location = new System.Drawing.Point(3, 106);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(432, 55);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "other.zzz";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // btnOtherExtactIN
+            // 
+            this.btnOtherExtactIN.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnOtherExtactIN.Location = new System.Drawing.Point(441, 109);
+            this.btnOtherExtactIN.Name = "btnOtherExtactIN";
+            this.btnOtherExtactIN.Size = new System.Drawing.Size(140, 49);
+            this.btnOtherExtactIN.TabIndex = 5;
+            this.btnOtherExtactIN.Text = "Se&t";
+            this.btnOtherExtactIN.UseVisualStyleBackColor = true;
+            this.btnOtherExtactIN.Click += new System.EventHandler(this.btnOtherExtactIN_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label4.Location = new System.Drawing.Point(3, 167);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(190, 167);
+            this.label4.TabIndex = 2;
+            this.label4.Text = "Choose a Folder to where you want the files to go";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel3.Controls.Add(this.btnZZZextractOUTbrowse, 1, 0);
+            this.tableLayoutPanel3.Controls.Add(this.txtZZZ_out, 0, 0);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(199, 170);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 161F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(584, 161);
+            this.tableLayoutPanel3.TabIndex = 3;
+            // 
+            // btnZZZextractOUTbrowse
+            // 
+            this.btnZZZextractOUTbrowse.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnZZZextractOUTbrowse.Location = new System.Drawing.Point(441, 3);
+            this.btnZZZextractOUTbrowse.Name = "btnZZZextractOUTbrowse";
+            this.btnZZZextractOUTbrowse.Size = new System.Drawing.Size(140, 155);
+            this.btnZZZextractOUTbrowse.TabIndex = 0;
+            this.btnZZZextractOUTbrowse.Text = "B&rowse";
+            this.btnZZZextractOUTbrowse.UseVisualStyleBackColor = true;
+            // 
+            // txtZZZ_out
+            // 
+            this.txtZZZ_out.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtZZZ_out.Location = new System.Drawing.Point(3, 3);
+            this.txtZZZ_out.Multiline = true;
+            this.txtZZZ_out.Name = "txtZZZ_out";
+            this.txtZZZ_out.Size = new System.Drawing.Size(432, 155);
+            this.txtZZZ_out.TabIndex = 1;
+            // 
+            // btnExtractExecute
+            // 
+            this.tableLayoutPanel1.SetColumnSpan(this.btnExtractExecute, 2);
+            this.btnExtractExecute.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnExtractExecute.Location = new System.Drawing.Point(3, 337);
+            this.btnExtractExecute.Name = "btnExtractExecute";
+            this.btnExtractExecute.Size = new System.Drawing.Size(780, 78);
+            this.btnExtractExecute.TabIndex = 4;
+            this.btnExtractExecute.Text = "E&xecute";
+            this.btnExtractExecute.UseVisualStyleBackColor = true;
             // 
             // tpWrite
             // 
@@ -129,145 +270,6 @@
             this.tpMerge.TabIndex = 2;
             this.tpMerge.Text = "Merge";
             this.tpMerge.UseVisualStyleBackColor = true;
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.Controls.Add(this.button1, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.button2, 1, 1);
-            this.tableLayoutPanel2.Controls.Add(this.textBox1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.label2, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.label3, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.button3, 1, 2);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(199, 3);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 3;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 34F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(584, 193);
-            this.tableLayoutPanel2.TabIndex = 1;
-            // 
-            // button1
-            // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button1.Location = new System.Drawing.Point(441, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(140, 57);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "&Browse";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button2.Location = new System.Drawing.Point(441, 66);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(140, 57);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "&Set";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // textBox1
-            // 
-            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox1.Location = new System.Drawing.Point(3, 3);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(432, 57);
-            this.textBox1.TabIndex = 2;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label2.Location = new System.Drawing.Point(3, 63);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(432, 63);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "main.zzz";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label3.Location = new System.Drawing.Point(3, 126);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(432, 67);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "other.zzz";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // button3
-            // 
-            this.button3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button3.Location = new System.Drawing.Point(441, 129);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(140, 61);
-            this.button3.TabIndex = 5;
-            this.button3.Text = "Se&t";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(3, 199);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(190, 199);
-            this.label4.TabIndex = 2;
-            this.label4.Text = "Choose Folder to where you want the files to go";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // tableLayoutPanel3
-            // 
-            this.tableLayoutPanel3.ColumnCount = 2;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.Controls.Add(this.button4, 1, 0);
-            this.tableLayoutPanel3.Controls.Add(this.textBox2, 0, 0);
-            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(199, 202);
-            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 1;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(584, 193);
-            this.tableLayoutPanel3.TabIndex = 3;
-            // 
-            // button4
-            // 
-            this.button4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button4.Location = new System.Drawing.Point(441, 3);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(140, 187);
-            this.button4.TabIndex = 0;
-            this.button4.Text = "B&rowse";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox2.Location = new System.Drawing.Point(3, 3);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(432, 187);
-            this.textBox2.TabIndex = 1;
-            // 
-            // button5
-            // 
-            this.tableLayoutPanel1.SetColumnSpan(this.button5, 2);
-            this.button5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button5.Location = new System.Drawing.Point(294, 398);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 4;
-            this.button5.Text = "E&xecute";
-            this.button5.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -303,17 +305,17 @@
         private System.Windows.Forms.TabPage tpWrite;
         private System.Windows.Forms.TabPage tpMerge;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btnZZZextractInBrowse;
+        private System.Windows.Forms.Button btnMainExtractIN;
+        private System.Windows.Forms.TextBox txtZZZ_in;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnOtherExtactIN;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button btnZZZextractOUTbrowse;
+        private System.Windows.Forms.TextBox txtZZZ_out;
+        private System.Windows.Forms.Button btnExtractExecute;
     }
 }
 
