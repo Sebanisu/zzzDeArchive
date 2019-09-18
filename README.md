@@ -6,6 +6,10 @@ The __Releases__ are for __Windows__ but the source should compile on __mono__ j
 
 When you run the __zzzDeArchive.exe__ it'll show a menu. Just follow the prompts and you should have no issue.<p align="center">
 ![Main menu image](https://raw.githubusercontent.com/Sebanisu/zzzDeArchive/master/img/mainmenu.png)</p>
+Now has a gui version.<p align="center">
+![GUI version image](https://user-images.githubusercontent.com/1035905/65191880-5a0d5d00-da43-11e9-91c4-df7d9dbe4bfc.png)</p>
+The new gui is happy to replace the files in your final fantasy VIII remastered folder. So make sure to back up.
+
 
 There is some command line support as well.
 
@@ -21,9 +25,14 @@ Will attempt to detect __main.zzz__ or __other.zzz__ and change the name accordi
 `zzzDeArchive "path to zzz with old data" "path to zzz with new data"` or press __3__ at the main menu.<br/>
 Output will be in the __OUT__ folder.
 
+`-skipwarning`
+Will not stop and warn you if you are adding files instead of just replacing them.
 
 Folder Merge:<br/>
 `zzzDeArchive -foldermerge` or press __4__ at the main menu.<br/>
+Optional Arguments:
+`zzzDeArchive -foldermerge "path.to\main.zzz" "path.to\other.zzz"`<br/>
+
 - Folders in the `IN\main` and `IN\other` will be treated as unarchived mods. These will be turned into ___folder-name_.zzz__ files. This will overwrite existing zzz files.<br/>
 - Place mod zzz files that are to go into __main.zzz__ into `IN\main`<br/>
 - Place mod zzz files that are to go into __other.zzz__ into `IN\other`<br/>
