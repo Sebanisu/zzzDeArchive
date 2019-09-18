@@ -771,7 +771,7 @@
             this.Name = "Form1";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "zzzDeArchive";
+            this.Text = "zzzDeArchive 0.1.7.4";
             this.tabControl.ResumeLayout(false);
             this.tpExtract.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
