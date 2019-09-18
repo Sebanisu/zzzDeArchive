@@ -6,8 +6,8 @@ The __Releases__ are for __Windows__ but the source should compile on __mono__ j
 
 When you run the __zzzDeArchive.exe__ it'll show a menu. Just follow the prompts and you should have no issue.<p align="center">
 ![Main menu image](https://raw.githubusercontent.com/Sebanisu/zzzDeArchive/master/img/mainmenu.png)</p>
-Now has a gui version.
-<p align="center">![GUI version](https://user-images.githubusercontent.com/1035905/65191880-5a0d5d00-da43-11e9-91c4-df7d9dbe4bfc.png)</p>
+Now has a gui version.<p align="center">
+![GUI version image](https://user-images.githubusercontent.com/1035905/65191880-5a0d5d00-da43-11e9-91c4-df7d9dbe4bfc.png)</p>
 The new gui is happy to replace the files in your final fantasy VIII remastered folder. So make sure to back up.
 
 
