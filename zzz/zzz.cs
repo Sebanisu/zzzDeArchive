@@ -533,6 +533,11 @@ namespace ZzzFile
 
         public string Merge()
         {
+            Logger.WriteLine($"Merging files:");
+            foreach (string i in In)
+                Logger.WriteLine($"{i}");
+            Logger.WriteLine($"Into: {Path_}");
+            Logger.WriteLine($"Output: {Out}");
             if (Out != null) { };
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
