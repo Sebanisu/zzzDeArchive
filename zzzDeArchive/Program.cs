@@ -1,10 +1,10 @@
-﻿using System;
+﻿using _Logger;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ZzzFile;
-using _Logger;
 
 namespace ZzzConsole
 {

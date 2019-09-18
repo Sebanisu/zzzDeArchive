@@ -43,14 +43,35 @@
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.btnZZZextractOUTbrowse = new System.Windows.Forms.Button();
             this.txtZZZ_out = new System.Windows.Forms.TextBox();
+            this.lblZZZ_out = new System.Windows.Forms.Label();
             this.btnExtractExecute = new System.Windows.Forms.Button();
             this.tpWrite = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
+            this.btnBrowseZZZWrite_OUT = new System.Windows.Forms.Button();
+            this.btnMainWriteOut = new System.Windows.Forms.Button();
+            this.txtBrowseZZZWrite_OUT = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.btnOtherWriteOut = new System.Windows.Forms.Button();
+            this.lblBrowseZZZWrite_OUT = new System.Windows.Forms.Label();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this.btnBrowseFolderWrite_IN = new System.Windows.Forms.Button();
+            this.txtBrowseFolderWrite_IN = new System.Windows.Forms.TextBox();
+            this.lblBrowseFolderWrite_IN = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.btnExcuteWrite = new System.Windows.Forms.Button();
             this.tpMerge = new System.Windows.Forms.TabPage();
             this.tabControl.SuspendLayout();
             this.tpExtract.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
+            this.tpWrite.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
+            this.tableLayoutPanel6.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
@@ -160,6 +181,7 @@
             this.txtZZZ_in.Name = "txtZZZ_in";
             this.txtZZZ_in.Size = new System.Drawing.Size(432, 47);
             this.txtZZZ_in.TabIndex = 2;
+            this.txtZZZ_in.TextChanged += new System.EventHandler(this.txtZZZ_in_TextChanged);
             // 
             // label2
             // 
@@ -212,11 +234,13 @@
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel3.Controls.Add(this.btnZZZextractOUTbrowse, 1, 0);
             this.tableLayoutPanel3.Controls.Add(this.txtZZZ_out, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.lblZZZ_out, 0, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(199, 170);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 1;
+            this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 161F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(584, 161);
             this.tableLayoutPanel3.TabIndex = 3;
@@ -226,10 +250,12 @@
             this.btnZZZextractOUTbrowse.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnZZZextractOUTbrowse.Location = new System.Drawing.Point(441, 3);
             this.btnZZZextractOUTbrowse.Name = "btnZZZextractOUTbrowse";
+            this.tableLayoutPanel3.SetRowSpan(this.btnZZZextractOUTbrowse, 2);
             this.btnZZZextractOUTbrowse.Size = new System.Drawing.Size(140, 155);
             this.btnZZZextractOUTbrowse.TabIndex = 0;
             this.btnZZZextractOUTbrowse.Text = "B&rowse";
             this.btnZZZextractOUTbrowse.UseVisualStyleBackColor = true;
+            this.btnZZZextractOUTbrowse.Click += new System.EventHandler(this.btnZZZextractOUTbrowse_Click);
             // 
             // txtZZZ_out
             // 
@@ -237,8 +263,18 @@
             this.txtZZZ_out.Location = new System.Drawing.Point(3, 3);
             this.txtZZZ_out.Multiline = true;
             this.txtZZZ_out.Name = "txtZZZ_out";
-            this.txtZZZ_out.Size = new System.Drawing.Size(432, 155);
+            this.txtZZZ_out.Size = new System.Drawing.Size(432, 122);
             this.txtZZZ_out.TabIndex = 1;
+            this.txtZZZ_out.TextChanged += new System.EventHandler(this.txtZZZ_in_TextChanged);
+            // 
+            // lblZZZ_out
+            // 
+            this.lblZZZ_out.AutoSize = true;
+            this.lblZZZ_out.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblZZZ_out.Location = new System.Drawing.Point(3, 128);
+            this.lblZZZ_out.Name = "lblZZZ_out";
+            this.lblZZZ_out.Size = new System.Drawing.Size(432, 33);
+            this.lblZZZ_out.TabIndex = 2;
             // 
             // btnExtractExecute
             // 
@@ -250,9 +286,11 @@
             this.btnExtractExecute.TabIndex = 4;
             this.btnExtractExecute.Text = "E&xecute";
             this.btnExtractExecute.UseVisualStyleBackColor = true;
+            this.btnExtractExecute.Click += new System.EventHandler(this.btnExtractExecute_Click);
             // 
             // tpWrite
             // 
+            this.tpWrite.Controls.Add(this.tableLayoutPanel4);
             this.tpWrite.Location = new System.Drawing.Point(4, 22);
             this.tpWrite.Name = "tpWrite";
             this.tpWrite.Padding = new System.Windows.Forms.Padding(3);
@@ -260,6 +298,209 @@
             this.tpWrite.TabIndex = 1;
             this.tpWrite.Text = "Write";
             this.tpWrite.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tableLayoutPanel4.Controls.Add(this.tableLayoutPanel6, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.tableLayoutPanel5, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.label5, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.label8, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.btnExcuteWrite, 0, 2);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 3;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(786, 418);
+            this.tableLayoutPanel4.TabIndex = 1;
+            // 
+            // tableLayoutPanel6
+            // 
+            this.tableLayoutPanel6.ColumnCount = 2;
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel6.Controls.Add(this.btnBrowseZZZWrite_OUT, 1, 0);
+            this.tableLayoutPanel6.Controls.Add(this.btnMainWriteOut, 1, 1);
+            this.tableLayoutPanel6.Controls.Add(this.txtBrowseZZZWrite_OUT, 0, 0);
+            this.tableLayoutPanel6.Controls.Add(this.label7, 0, 2);
+            this.tableLayoutPanel6.Controls.Add(this.label9, 0, 3);
+            this.tableLayoutPanel6.Controls.Add(this.btnOtherWriteOut, 1, 3);
+            this.tableLayoutPanel6.Controls.Add(this.lblBrowseZZZWrite_OUT, 0, 1);
+            this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel6.Location = new System.Drawing.Point(199, 128);
+            this.tableLayoutPanel6.Name = "tableLayoutPanel6";
+            this.tableLayoutPanel6.RowCount = 4;
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel6.Size = new System.Drawing.Size(584, 203);
+            this.tableLayoutPanel6.TabIndex = 7;
+            // 
+            // btnBrowseZZZWrite_OUT
+            // 
+            this.btnBrowseZZZWrite_OUT.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBrowseZZZWrite_OUT.Location = new System.Drawing.Point(441, 3);
+            this.btnBrowseZZZWrite_OUT.Name = "btnBrowseZZZWrite_OUT";
+            this.btnBrowseZZZWrite_OUT.Size = new System.Drawing.Size(140, 75);
+            this.btnBrowseZZZWrite_OUT.TabIndex = 0;
+            this.btnBrowseZZZWrite_OUT.Text = "&Browse";
+            this.btnBrowseZZZWrite_OUT.UseVisualStyleBackColor = true;
+            this.btnBrowseZZZWrite_OUT.Click += new System.EventHandler(this.btnBrowseZZZWrite_OUT_Click);
+            // 
+            // btnMainWriteOut
+            // 
+            this.btnMainWriteOut.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnMainWriteOut.Location = new System.Drawing.Point(441, 84);
+            this.btnMainWriteOut.Name = "btnMainWriteOut";
+            this.tableLayoutPanel6.SetRowSpan(this.btnMainWriteOut, 2);
+            this.btnMainWriteOut.Size = new System.Drawing.Size(140, 74);
+            this.btnMainWriteOut.TabIndex = 1;
+            this.btnMainWriteOut.Text = "&Set";
+            this.btnMainWriteOut.UseVisualStyleBackColor = true;
+            this.btnMainWriteOut.Click += new System.EventHandler(this.btnMainWriteOut_Click);
+            // 
+            // txtBrowseZZZWrite_OUT
+            // 
+            this.txtBrowseZZZWrite_OUT.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBrowseZZZWrite_OUT.Location = new System.Drawing.Point(3, 3);
+            this.txtBrowseZZZWrite_OUT.Multiline = true;
+            this.txtBrowseZZZWrite_OUT.Name = "txtBrowseZZZWrite_OUT";
+            this.txtBrowseZZZWrite_OUT.Size = new System.Drawing.Size(432, 75);
+            this.txtBrowseZZZWrite_OUT.TabIndex = 2;
+            this.txtBrowseZZZWrite_OUT.TextChanged += new System.EventHandler(this.txtBrowseFolderWrite_IN_TextChanged);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label7.Location = new System.Drawing.Point(3, 121);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(432, 40);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "main.zzz";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label9.Location = new System.Drawing.Point(3, 161);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(432, 42);
+            this.label9.TabIndex = 4;
+            this.label9.Text = "other.zzz";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // btnOtherWriteOut
+            // 
+            this.btnOtherWriteOut.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnOtherWriteOut.Location = new System.Drawing.Point(441, 164);
+            this.btnOtherWriteOut.Name = "btnOtherWriteOut";
+            this.btnOtherWriteOut.Size = new System.Drawing.Size(140, 36);
+            this.btnOtherWriteOut.TabIndex = 5;
+            this.btnOtherWriteOut.Text = "Se&t";
+            this.btnOtherWriteOut.UseVisualStyleBackColor = true;
+            // 
+            // lblBrowseZZZWrite_OUT
+            // 
+            this.lblBrowseZZZWrite_OUT.AutoSize = true;
+            this.lblBrowseZZZWrite_OUT.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblBrowseZZZWrite_OUT.Location = new System.Drawing.Point(3, 81);
+            this.lblBrowseZZZWrite_OUT.Name = "lblBrowseZZZWrite_OUT";
+            this.lblBrowseZZZWrite_OUT.Size = new System.Drawing.Size(432, 40);
+            this.lblBrowseZZZWrite_OUT.TabIndex = 6;
+            this.lblBrowseZZZWrite_OUT.Text = "label10";
+            // 
+            // tableLayoutPanel5
+            // 
+            this.tableLayoutPanel5.ColumnCount = 2;
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel5.Controls.Add(this.btnBrowseFolderWrite_IN, 1, 0);
+            this.tableLayoutPanel5.Controls.Add(this.txtBrowseFolderWrite_IN, 0, 0);
+            this.tableLayoutPanel5.Controls.Add(this.lblBrowseFolderWrite_IN, 0, 1);
+            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(199, 3);
+            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
+            this.tableLayoutPanel5.RowCount = 2;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 161F));
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(584, 119);
+            this.tableLayoutPanel5.TabIndex = 6;
+            // 
+            // btnBrowseFolderWrite_IN
+            // 
+            this.btnBrowseFolderWrite_IN.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnBrowseFolderWrite_IN.Location = new System.Drawing.Point(441, 3);
+            this.btnBrowseFolderWrite_IN.Name = "btnBrowseFolderWrite_IN";
+            this.tableLayoutPanel5.SetRowSpan(this.btnBrowseFolderWrite_IN, 2);
+            this.btnBrowseFolderWrite_IN.Size = new System.Drawing.Size(140, 113);
+            this.btnBrowseFolderWrite_IN.TabIndex = 0;
+            this.btnBrowseFolderWrite_IN.Text = "B&rowse";
+            this.btnBrowseFolderWrite_IN.UseVisualStyleBackColor = true;
+            this.btnBrowseFolderWrite_IN.Click += new System.EventHandler(this.btnBrowseFolderWrite_IN_Click);
+            // 
+            // txtBrowseFolderWrite_IN
+            // 
+            this.txtBrowseFolderWrite_IN.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBrowseFolderWrite_IN.Location = new System.Drawing.Point(3, 3);
+            this.txtBrowseFolderWrite_IN.Multiline = true;
+            this.txtBrowseFolderWrite_IN.Name = "txtBrowseFolderWrite_IN";
+            this.txtBrowseFolderWrite_IN.Size = new System.Drawing.Size(432, 80);
+            this.txtBrowseFolderWrite_IN.TabIndex = 1;
+            this.txtBrowseFolderWrite_IN.TextChanged += new System.EventHandler(this.txtBrowseFolderWrite_IN_TextChanged);
+            // 
+            // lblBrowseFolderWrite_IN
+            // 
+            this.lblBrowseFolderWrite_IN.AutoSize = true;
+            this.lblBrowseFolderWrite_IN.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblBrowseFolderWrite_IN.Location = new System.Drawing.Point(3, 86);
+            this.lblBrowseFolderWrite_IN.Name = "lblBrowseFolderWrite_IN";
+            this.lblBrowseFolderWrite_IN.Size = new System.Drawing.Size(432, 33);
+            this.lblBrowseFolderWrite_IN.TabIndex = 2;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label5.Location = new System.Drawing.Point(3, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(190, 125);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "Choose folder to create a ZZZ file from";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label8.Location = new System.Drawing.Point(3, 125);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(190, 209);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Choose a path and filename of your zzz file.\r\n\r\nNote this will write to temp fold" +
+    "er then attempt to move to location.\r\n\r\nIf not the temp folder will open and the" +
+    " file will be located in there.\r\n";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // btnExcuteWrite
+            // 
+            this.tableLayoutPanel4.SetColumnSpan(this.btnExcuteWrite, 2);
+            this.btnExcuteWrite.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnExcuteWrite.Location = new System.Drawing.Point(3, 337);
+            this.btnExcuteWrite.Name = "btnExcuteWrite";
+            this.btnExcuteWrite.Size = new System.Drawing.Size(780, 78);
+            this.btnExcuteWrite.TabIndex = 4;
+            this.btnExcuteWrite.Text = "E&xecute";
+            this.btnExcuteWrite.UseVisualStyleBackColor = true;
+            this.btnExcuteWrite.Click += new System.EventHandler(this.btnExcuteWrite_Click);
             // 
             // tpMerge
             // 
@@ -292,6 +533,13 @@
             this.tableLayoutPanel2.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
+            this.tpWrite.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
+            this.tableLayoutPanel6.ResumeLayout(false);
+            this.tableLayoutPanel6.PerformLayout();
+            this.tableLayoutPanel5.ResumeLayout(false);
+            this.tableLayoutPanel5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -316,6 +564,23 @@
         private System.Windows.Forms.Button btnZZZextractOUTbrowse;
         private System.Windows.Forms.TextBox txtZZZ_out;
         private System.Windows.Forms.Button btnExtractExecute;
+        private System.Windows.Forms.Label lblZZZ_out;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
+        private System.Windows.Forms.Button btnBrowseZZZWrite_OUT;
+        private System.Windows.Forms.Button btnMainWriteOut;
+        private System.Windows.Forms.TextBox txtBrowseZZZWrite_OUT;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button btnOtherWriteOut;
+        private System.Windows.Forms.Label lblBrowseZZZWrite_OUT;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+        private System.Windows.Forms.Button btnBrowseFolderWrite_IN;
+        private System.Windows.Forms.TextBox txtBrowseFolderWrite_IN;
+        private System.Windows.Forms.Label lblBrowseFolderWrite_IN;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button btnExcuteWrite;
     }
 }
 

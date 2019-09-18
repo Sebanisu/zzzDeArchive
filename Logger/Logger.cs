@@ -43,7 +43,14 @@ namespace _Logger
         {
             if (sw != null && fs != null)
             {
-                sw.Close();
+                try
+                {
+                    sw.Close();
+                }
+                catch
+                {
+
+                }
                 sw = null;
                 fs = null;
             }
