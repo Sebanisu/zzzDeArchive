@@ -10,6 +10,8 @@ Now has a gui version.<p align="center">
 ![GUI version image](https://user-images.githubusercontent.com/1035905/65191880-5a0d5d00-da43-11e9-91c4-df7d9dbe4bfc.png)</p>
 The new gui is happy to replace the files in your final fantasy VIII remastered folder. So make sure to back up.
 
+Example of new gui in action:<p align="center">
+[![](http://img.youtube.com/vi/bCKF29iVi_c/0.jpg)](http://www.youtube.com/watch?v=bCKF29iVi_c "https://i.ytimg.com/vi/bCKF29iVi_c/hqdefault.jpg?sqp=-oaymwEZCPYBEIoBSFXyq4qpAwsIARUAAIhCGAFwAQ==&rs=AOn4CLAI_1oEDQA1dqv2v4gXsXwW0XUoqA")</p>
 
 There is some command line support as well.
 
