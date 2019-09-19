@@ -147,9 +147,17 @@ namespace zzzDeArchive_WinForms
             string strtmp = btnExtractExecute.Text;
             btnExtractExecute.Text = "Extracting...";
             Application.DoEvents();
-            zzz.In = new List<string> { Path.GetFullPath(txtZZZ_in.Text.Trim()) };
-            zzz.Path_ = lblZZZ_out.Text;
-            openfolder(zzz.Extract());
+            try
+            {
+                zzz.In = new List<string> { Path.GetFullPath(txtZZZ_in.Text.Trim()) };
+                zzz.Path_ = lblZZZ_out.Text;
+                openfolder(zzz.Extract());
+            }
+            catch (Exception err)
+            {
+                Logger.WriteLine(err.Message);
+                Logger.WriteLine(txtZZZ_in.Text.Trim());
+            }
             btnExtractExecute.Text = strtmp;
             btnExtractExecute.Enabled = true;
         }
@@ -292,8 +300,10 @@ namespace zzzDeArchive_WinForms
                 if (Directory.Exists(folder))
                     Process.Start(folder);
             }
-            catch
+            catch (Exception err)
             {
+                Logger.WriteLine(err.Message);
+                Logger.WriteLine(folder);
             }
         }
 
@@ -310,8 +320,10 @@ namespace zzzDeArchive_WinForms
                     en = false;
                 }
             }
-            catch
+            catch (Exception err)
             {
+                Logger.WriteLine(err.Message);
+                Logger.WriteLine(txtBrowseFolderWrite_IN.Text.Trim());
                 lblBrowseFolderWrite_IN.Text = "";
                 en = false;
             }
@@ -320,8 +332,10 @@ namespace zzzDeArchive_WinForms
                 string path = Path.GetFullPath(txtBrowseZZZWrite_OUT.Text.Trim());
                 lblBrowseZZZWrite_OUT.Text = Path.Combine(Path.GetDirectoryName(path), $"{Path.GetFileNameWithoutExtension(path)}.zzz");
             }
-            catch
+            catch (Exception err)
             {
+                Logger.WriteLine(err.Message);
+                Logger.WriteLine(txtBrowseZZZWrite_OUT.Text.Trim());
                 txtBrowseZZZWrite_OUT.Text = "";
                 en = false;
             }
@@ -348,8 +362,10 @@ namespace zzzDeArchive_WinForms
                         btnExtractExecute.Enabled = true;
                         return;
                     }
-                    catch
+                    catch (Exception err)
                     {
+                        Logger.WriteLine(err.Message);
+                        Logger.WriteLine(txtZZZ_out.Text.Trim());
                         lblZZZ_out.Text = "";
                     }
                 }

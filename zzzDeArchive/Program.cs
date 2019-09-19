@@ -35,7 +35,7 @@ namespace ZzzConsole
                 path = path.Trim('"');
                 path = path.Trim();
                 Logger.WriteLine();
-                path = Path.GetFullPath(path);
+                path = GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
                     Logger.WriteLine("File doesn't exist\n");
@@ -52,7 +52,7 @@ namespace ZzzConsole
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                path = Path.GetFullPath(path);
+                path = GetFullPath(path);
                 Logger.WriteLine();
                 Directory.CreateDirectory(path);
                 good = Directory.Exists(path);
@@ -63,6 +63,19 @@ namespace ZzzConsole
             while (true);
             zzz.Path_ = path;
             return zzz.Extract();
+        }
+        static string GetFullPath(string path)
+        {
+            try
+            {
+                return Path.GetFullPath(path);
+            }
+            catch(Exception e)
+            {
+                Logger.WriteLine($"{e.Message}");
+                Logger.WriteLine($"path: {path}");
+                return null;
+            }
         }
 
         private static void Main(string[] args)
@@ -75,7 +88,6 @@ namespace ZzzConsole
                 zzz.SkipWarning = true;
                 Args.RemoveAt(ind);
             }
-
             if ((Args.Count == 1 || Args.Count == 3) &&
                 (Args[0].Equals("-foldermerge", StringComparison.OrdinalIgnoreCase) ||
                 Args[0].Equals("-mergefolder", StringComparison.OrdinalIgnoreCase)) &&
@@ -87,21 +99,21 @@ namespace ZzzConsole
                 if (Args.Count == 3)
                 {
                     string path = Args[1].Trim();
-                    path = Path.GetFullPath(path);
+                    path = GetFullPath(path);
                     zzz.Main = path;
                     path = Args[2].Trim();
-                    path = Path.GetFullPath(path);
+                    path = GetFullPath(path);
                     zzz.Other = path;
                 }
                 zzz.FolderMerge();
             }
-            else if (Args.Count >= 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
+            else if (Args.Count >= 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
                 //merge
                 zzz.Path_ = Args[0];
                 for (int i = 1; i < Args.Count; i++)
                 {
-                    Args[i] = Path.GetFullPath(Args[i]);
+                    Args[i] = GetFullPath(Args[i]);
                     if (File.Exists(Args[i]) && !zzz.In.Contains(Args[i]))
                         zzz.In.Add(Args[i]);
                     else
@@ -110,9 +122,9 @@ namespace ZzzConsole
                 if (zzz.In.Count > 0)
                     zzz.Merge();
             }
-            else if (Args.Count == 2 && File.Exists(Args[0] = Path.GetFullPath(Args[0])))
+            else if (Args.Count == 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
-                Args[1] = Path.GetFullPath(Args[1]);
+                Args[1] = GetFullPath(Args[1]);
                 Directory.CreateDirectory(Args[1]);
                 if (Directory.Exists(Args[1]))
                 {
@@ -123,7 +135,7 @@ namespace ZzzConsole
                 else
                     Logger.WriteLine("Invalid Directory");
             }
-            else if (Args.Count == 1 && Directory.Exists(Args[0] = Path.GetFullPath(Args[0])))
+            else if (Args.Count == 1 && Directory.Exists(Args[0] = GetFullPath(Args[0])))
             {
                 zzz.Path_ = Args[0];
                 zzz.Write();
@@ -159,7 +171,7 @@ namespace ZzzConsole
             {
                 try
                 {
-                    folder = Path.GetFullPath(folder);
+                    folder = GetFullPath(folder);
                     if (Directory.Exists(folder))
                         Process.Start(folder);
                 }
@@ -215,7 +227,7 @@ namespace ZzzConsole
                 path = path.Trim('"');
                 path = path.Trim();
                 Logger.WriteLine();
-                path = Path.GetFullPath(path);
+                path = GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
                     Logger.WriteLine("File doesn't exist\n");
@@ -252,7 +264,7 @@ namespace ZzzConsole
                 }
                 else
                 {
-                    path = Path.GetFullPath(path);
+                    path = GetFullPath(path);
                     good = File.Exists(path) && !zzz.In.Contains(path);
                     if (good)
                     {
@@ -282,7 +294,7 @@ namespace ZzzConsole
                 path = path.Trim('"');
                 path = path.Trim();
                 Logger.WriteLine();
-                path = Path.GetFullPath(path);
+                path = GetFullPath(path);
                 good = Directory.Exists(path);
                 if (!good)
                     Logger.WriteLine("Directory doesn't exist\n");
@@ -315,7 +327,7 @@ namespace ZzzConsole
                 path = path.Trim('"');
                 path = path.Trim();
                 Logger.WriteLine();
-                path = Path.GetFullPath(path);
+                path = GetFullPath(path);
                 good = Directory.Exists(path);
                 if (!good)
                     Logger.WriteLine("Directory doesn't exist\n");
