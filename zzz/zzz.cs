@@ -190,7 +190,7 @@ namespace ZzzFile
         #region Properties
 
         public long ExpectedFileSize => (Data?.Last().Size ?? 0) + (Data?.Last().Offset ?? 0);
-
+        public int MaxPathLength => Data.Max(x => x.FilenameLength);
         public int TotalBytes
         {
             get
@@ -303,6 +303,8 @@ namespace ZzzFile
     {
         #region Fields
 
+        private const int max_path = 260;
+
         private static HashAlgorithm sha;
         private readonly string other;
         private List<string> _in = new List<string>(1);
@@ -407,6 +409,64 @@ namespace ZzzFile
             }
         }
 
+        private Header TestLength(Header head)
+        {
+            int maxPathLength = head.MaxPathLength;
+            string str = $"Max path length of {Path.GetFileName(In.First())}: {maxPathLength}\n" +
+                    $"Dest path length: {Path_.Length}\n" +
+                    $"Total+1 ({Path_.Length + maxPathLength + 1}) must be less than {max_path}\n" +
+                    $"And the path of {Path.GetFileName(In.First())}: {In.First().Length}\n" +
+                    $"must also be less than {max_path}";
+            if (In.First().Length >= max_path || Path_.Length + maxPathLength + 1 >= max_path)
+            {
+                Logger.WriteLine(str);
+                throw new PathTooLongException(str);
+            }
+            else
+            {
+                Logger.WriteLine(str, true);
+            }
+            return head;
+        }
+
+        private string[] TestLength(string[] files)
+        {
+            int maxPathLength = files.Max(x => x.Length);
+            string str = $"Max path length of {Path.GetFileName(Path_)}: {maxPathLength}\n" +
+                    $"Dest path length: {Out.Length}\n" +
+                    $"Both must be less than {max_path}";
+            if (Out.Length >= max_path || maxPathLength >= max_path)
+            {
+                Logger.WriteLine(str);
+                throw new PathTooLongException(str);
+            }
+            else
+            {
+                Logger.WriteLine(str, true);
+            }
+            return files;
+        }
+
+        private List<string> TestLength(List<string> files)
+        {
+            int maxPathLength = files.Max(x => x.Length);
+            string str =
+                $"Max path length of {Path_}: {Path_.Length}\n" +
+                $"Dest path length: {Out.Length}\n" +
+                $"Max path Length of input files: {maxPathLength}\n" +
+                $"Both all be less than {max_path}";
+            if (Out.Length >= max_path || Path_.Length >= max_path || maxPathLength >= max_path)
+            {
+                Logger.WriteLine(str);
+                throw new PathTooLongException(str);
+            }
+            else
+            {
+                Logger.WriteLine(str, true);
+            }
+            return files;
+        }
+
         private void Write(List<string> d1)
         {
             string path = Path_;
@@ -490,7 +550,7 @@ namespace ZzzFile
             {
                 using (BinaryReader br = new BinaryReader(fs))
                 {
-                    head = Header.Read(br);
+                    head = TestLength(Header.Read(br));
                     Logger.WriteLine(head.ToString());
 
                     //Directory.CreateDirectory(_path);
@@ -538,6 +598,7 @@ namespace ZzzFile
                 Logger.WriteLine($"{i}");
             Logger.WriteLine($"Into: {Path_}");
             Logger.WriteLine($"Output: {Out}");
+            TestLength(In);
             if (Out != null) { };
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
@@ -656,6 +717,7 @@ namespace ZzzFile
         {
             Logger.WriteLine($"Writing {Path_} to {Out}");
             Header head = Header.Read(Path_, out string[] files, Path_);
+            files = TestLength(files);
             Logger.WriteLine(head.ToString());
             if (Out != null)
                 using (FileStream fs = GetFs(ref _out))

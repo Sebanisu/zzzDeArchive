@@ -179,6 +179,8 @@ namespace ZzzConsole
                 {
                 }
             }
+
+            Logger.DisposeChildren();
         }
 
         private static ConsoleKeyInfo MainMenu()

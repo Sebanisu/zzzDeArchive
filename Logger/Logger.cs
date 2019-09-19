@@ -40,7 +40,7 @@ namespace _Logger
             if (!skipConsole)
                 Console.Write(@in);
             if (!skipLog)
-                self.sw.Write(@in);
+                self?.sw.Write(@in);
             return @in;
         }
 
@@ -49,10 +49,14 @@ namespace _Logger
             if (!skipConsole)
                 Console.WriteLine(@in);
             if (!skipLog)
-                self.sw.WriteLine(@in);
+                self?.sw.WriteLine(@in);
             return @in;
         }
-
+        public static void DisposeChildren()
+        {
+            self?.Dispose();
+            self = null;
+        }
         public void Dispose()
         {
             if (sw != null && fs != null)

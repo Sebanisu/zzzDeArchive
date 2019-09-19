@@ -409,6 +409,12 @@ namespace zzzDeArchive_WinForms
                 Text = "Filenames"
             };
             lvMergeInput.Columns.AddRange(new ColumnHeader[] { columnHeader1 });
+            Application.ApplicationExit += Application_ApplicationExit;
+        }
+
+        private void Application_ApplicationExit(object sender, EventArgs e)
+        {
+            Logger.DisposeChildren();
         }
 
         #endregion Constructors
