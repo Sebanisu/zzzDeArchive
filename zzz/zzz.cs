@@ -369,9 +369,11 @@ namespace ZzzFile
 
         private static void TestSize(Header head, Stream stream)
         {
+            string msg = $"Expected filesize ({head.ExpectedFileSize}) == resulting filesize ({stream.Length})";
+            Logger.WriteLine(msg);
             if (head.ExpectedFileSize != stream.Length)
-            {
-                throw new Exception($"expected filesize ({head.ExpectedFileSize}) != resulting filesize ({stream.Length})");
+            {   
+                throw new InvalidDataException(msg);
             }
         }
 
@@ -644,7 +646,7 @@ namespace ZzzFile
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
             Logger.WriteLine($"Opening {Path_}");
-            using (br._out = new BinaryReader(File.Open(Path_, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            using (br._out = new BinaryReader(File.Open(Path_, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
                 head._out = Header.Read(br._out);
                 TestSize(head._out, br._out.BaseStream);

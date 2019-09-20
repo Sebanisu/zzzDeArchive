@@ -111,6 +111,10 @@ namespace zzzDeArchive_WinForms
                     {
                         MessageBox.Show(err0.Message, "Path Too Long Exception");
                     }
+                    catch (InvalidDataException err0)
+                    {
+                        MessageBox.Show(err0.Message, "Invalid Data Exception");
+                    }
                     btnMergeExecute.Text = strtmp;
                     btnMergeExecute.Enabled = true;
                 }
@@ -148,8 +152,11 @@ namespace zzzDeArchive_WinForms
             }
             catch (PathTooLongException err0)
             {
-                Logger.WriteLine(err0.Message);
                 MessageBox.Show(err0.Message, "Path Too Long Exception");
+            }
+            catch (InvalidDataException err0)
+            {
+                MessageBox.Show(err0.Message, "Invalid Data Exception");
             }
             btnExecuteWrite.Text = strtmp;
             btnExecuteWrite.Enabled = true;

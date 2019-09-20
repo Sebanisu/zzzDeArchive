@@ -41,7 +41,7 @@ namespace ZzzConsole
             }
             while (true);
 
-            zzz.In.Add(path);
+            zzz.In = new List<string> { path };
             do
             {
                 Logger.Write(
@@ -64,9 +64,12 @@ namespace ZzzConsole
             {
                 return zzz.Extract();
             }
-            catch (PathTooLongException err)
+            catch (PathTooLongException)
             {
-                Logger.WriteLine(err.Message);
+                goto StartExtractMenu;
+            }
+            catch (InvalidDataException)
+            {
                 goto StartExtractMenu;
             }
         }
@@ -116,15 +119,18 @@ namespace ZzzConsole
                 {
                     zzz.FolderMerge();
                 }
-                catch (PathTooLongException err)
+                catch (PathTooLongException)
                 {
-                    Logger.WriteLine(err.Message);
+                }
+                catch (InvalidDataException)
+                {
                 }
             }
             else if (Args.Count >= 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
                 //merge
                 zzz.Path_ = Args[0];
+                zzz.In = new List<string>();
                 for (int i = 1; i < Args.Count; i++)
                 {
                     Args[i] = GetFullPath(Args[i]);
@@ -138,15 +144,18 @@ namespace ZzzConsole
                     if (zzz.In.Count > 0)
                         zzz.Merge();
                 }
-                catch (PathTooLongException err)
+                catch (PathTooLongException)
                 {
-                    Logger.WriteLine(err.Message);
+                }
+                catch (InvalidDataException)
+                {
                 }
             }
             else if (Args.Count == 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
                 Args[1] = GetFullPath(Args[1]);
                 Directory.CreateDirectory(Args[1]);
+                zzz.In = new List<string>();
                 if (Directory.Exists(Args[1]))
                 {
                     zzz.In.Add(Args[0]);
@@ -155,9 +164,11 @@ namespace ZzzConsole
                     {
                         zzz.Extract();
                     }
-                    catch (PathTooLongException err)
+                    catch (PathTooLongException)
                     {
-                        Logger.WriteLine(err.Message);
+                    }
+                    catch (InvalidDataException)
+                    {
                     }
                 }
                 else
@@ -170,9 +181,11 @@ namespace ZzzConsole
                 {
                     zzz.Write();
                 }
-                catch (PathTooLongException err)
+                catch (PathTooLongException)
                 {
-                    Logger.WriteLine(err.Message);
+                }
+                catch (InvalidDataException)
+                {
                 }
             }
             else
@@ -273,6 +286,7 @@ namespace ZzzConsole
             while (true);
 
             zzz.Path_ = path;
+            zzz.In = new List<string>();
             do
             {
                 if (zzz.In.Count == 0)
@@ -302,6 +316,7 @@ namespace ZzzConsole
                 else
                 {
                     path = GetFullPath(path);
+                    zzz.In = new List<string>();
                     good = File.Exists(path) && !zzz.In.Contains(path);
                     if (good)
                     {
@@ -317,9 +332,12 @@ namespace ZzzConsole
             {
                 return zzz.Merge();
             }
-            catch (PathTooLongException err)
+            catch (PathTooLongException)
             {
-                Logger.WriteLine(err.Message);
+                goto StartMergeMenu;
+            }
+            catch (InvalidDataException)
+            {
                 goto StartMergeMenu;
             }
         }
@@ -356,9 +374,11 @@ namespace ZzzConsole
                 {
                     zzz.Write();
                 }
-                catch (PathTooLongException err)
+                catch (PathTooLongException)
                 {
-                    Logger.WriteLine(err.Message);
+                }
+                catch (InvalidDataException)
+                {
                 }
                 foreach (string subdir in subdirectoryEntries)
                     LoadSubDirs(subdir);
@@ -393,9 +413,12 @@ namespace ZzzConsole
             {
                 return zzz.Write();
             }
-            catch (PathTooLongException err)
+            catch (PathTooLongException)
             {
-                Logger.WriteLine(err.Message);
+                goto BeginWriteMenu;
+            }
+            catch (InvalidDataException)
+            {
                 goto BeginWriteMenu;
             }
         }
