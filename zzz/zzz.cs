@@ -572,6 +572,47 @@ namespace ZzzFile
                             }
                         }
                     }
+                    Logger.WriteLine($"Verifing output");
+                    TestSize(head, br.BaseStream);
+
+                    foreach (FileData item in head.Data)
+                    {
+                        if (item.Offset > fs.Length)
+                        {
+                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                "offset: {item.Offset}");
+                        }
+                        if (item.Offset + item.Size > fs.Length)
+                        {
+                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                                "offset: {item.Offset}\n" +
+                                "size: {item.Size}");
+                        }
+                        fs.Seek(item.Offset, SeekOrigin.Begin);
+
+                        byte[] osha = GetHash(br, item.Size);
+                        byte[] isha = null;
+                        string testpath = System.IO.Path.Combine(Path_, item.Filename);
+                        using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                        {
+                            isha = sha.ComputeHash(br2.BaseStream);
+                        }
+                        if (isha == null)
+                        {
+                            throw new Exception($"failed to verify ({testpath}) sha1 value is null");
+                        }
+                        else if (!isha.SequenceEqual(osha))
+                        {
+                            throw new Exception($"failed to verify ({testpath}) sha1 mismatch \n" +
+                                $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
+                                $"offset: {item.Offset}\n" +
+                                $"size:   {item.Size}");
+                        }
+                        else
+                        {
+                            Logger.WriteLine($"Verified ({testpath}) sha1({BitConverter.ToString(osha).Replace("-", "")})");
+                        }
+                    }
                 }
             }
             Logger.WriteLine($"Saved to: {Path_}");

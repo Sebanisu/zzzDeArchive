@@ -83,27 +83,33 @@ namespace zzzDeArchive_WinForms
                     string strtmp = btnMergeExecute.Text;
                     btnMergeExecute.Text = "Merging...";
                     Application.DoEvents();
-
                     zzz.In = @in.ToList();
                     zzz.Path_ = txtMergeSource.Text;
                     zzz.Out = Path.GetTempFileName();
-                    zzz.Merge();
                     try
                     {
-                        btnMergeExecute.Text = "Coping...";
-                        Logger.WriteLine($"Coping {zzz.Out} to {zzz.Path_}");
-                        Application.DoEvents();
-                        File.Copy(zzz.Out, lblBrowseZZZWrite_OUT.Text, true);
-                        openfolder(Path.GetDirectoryName(zzz.Path_));
-                        Logger.WriteLine($"Deleting {zzz.Out}");
-                        File.Delete(zzz.Out);
+                        zzz.Merge();
+                        try
+                        {
+                            btnMergeExecute.Text = "Coping...";
+                            Application.DoEvents();
+                            Logger.WriteLine($"Coping {zzz.Out} to {zzz.Path_}");
+                            File.Copy(zzz.Out, lblBrowseZZZWrite_OUT.Text, true);
+                            openfolder(zzz.Path_);
+                            Logger.WriteLine($"Deleting {zzz.Out}");
+                            File.Delete(zzz.Out);
+                        }
+                        catch (Exception err)
+                        {
+                            openfolder(zzz.Out);
+                            openfolder(Path.GetDirectoryName(zzz.Path_));
+                            Logger.WriteLine($"Coping Failed...");
+                            MessageBox.Show($"File is named:\n{Path.GetFileName(zzz.Out)}\n{err.Message}", "File Copy Failed");
+                        }
                     }
-                    catch
+                    catch(PathTooLongException err0)
                     {
-                        openfolder(Path.GetDirectoryName(zzz.Out));
-                        openfolder(Path.GetDirectoryName(zzz.Path_));
-                        Logger.WriteLine($"Coping Failed...");
-                        MessageBox.Show($"File is named:\n{Path.GetFileName(zzz.Out)}", "File Copy Failed");
+                        MessageBox.Show(err0.Message, "Path Too Long Exception");
                     }
                     btnMergeExecute.Text = strtmp;
                     btnMergeExecute.Enabled = true;
@@ -111,41 +117,49 @@ namespace zzzDeArchive_WinForms
             }
         }
 
-        private void btnExcuteWrite_Click(object sender, EventArgs e)
+        private void btnExecuteWrite_Click(object sender, EventArgs e)
         {
-            btnExcuteWrite.Enabled = false;
-            string strtmp = btnExcuteWrite.Text;
-            btnExcuteWrite.Text = "Writing...";
+            btnExecuteWrite.Enabled = false;
+            string strtmp = btnExecuteWrite.Text;
+            btnExecuteWrite.Text = "Writing...";
             Application.DoEvents();
             zzz.Path_ = lblBrowseFolderWrite_IN.Text;
             zzz.Out = Path.GetTempFileName();
-            zzz.Write();
             try
             {
-                btnExcuteWrite.Text = "Coping...";
-                Logger.WriteLine($"Coping {zzz.Out} to {lblBrowseZZZWrite_OUT.Text}");
-                Application.DoEvents();
-                File.Copy(zzz.Out, lblBrowseZZZWrite_OUT.Text, true);
-                openfolder(Path.GetDirectoryName(lblBrowseZZZWrite_OUT.Text));
-                Logger.WriteLine($"Deleting {zzz.Out}");
-                File.Delete(zzz.Out);
+                zzz.Write();
+                try
+                {
+                    btnExecuteWrite.Text = "Coping...";
+                    Logger.WriteLine($"Coping {zzz.Out} to {lblBrowseZZZWrite_OUT.Text}");
+                    Application.DoEvents();
+                    File.Copy(zzz.Out, lblBrowseZZZWrite_OUT.Text, true);
+                    openfolder(lblBrowseZZZWrite_OUT.Text);
+                    Logger.WriteLine($"Deleting {zzz.Out}");
+                    File.Delete(zzz.Out);
+                }
+                catch (Exception err)
+                {
+                    openfolder(zzz.Out);
+                    openfolder(Path.GetDirectoryName(lblBrowseZZZWrite_OUT.Text));
+                    Logger.WriteLine($"Coping Failed...");
+                    MessageBox.Show($"File is named:\n{Path.GetFileName(zzz.Out)}\n{err.Message}", "File Copy Failed");
+                }
             }
-            catch
+            catch (PathTooLongException err0)
             {
-                openfolder(Path.GetDirectoryName(zzz.Out));
-                openfolder(Path.GetDirectoryName(lblBrowseZZZWrite_OUT.Text));
-                Logger.WriteLine($"Coping Failed...");
-                MessageBox.Show($"File is named:\n{Path.GetFileName(zzz.Out)}", "File Copy Failed");
+                Logger.WriteLine(err0.Message);
+                MessageBox.Show(err0.Message, "Path Too Long Exception");
             }
-            btnExcuteWrite.Text = strtmp;
-            btnExcuteWrite.Enabled = true;
+            btnExecuteWrite.Text = strtmp;
+            btnExecuteWrite.Enabled = true;
         }
 
-        private void btnExtractExecute_Click(object sender, EventArgs e)
+        private void btnExecuteExtract_Click(object sender, EventArgs e)
         {
-            btnExtractExecute.Enabled = false;
-            string strtmp = btnExtractExecute.Text;
-            btnExtractExecute.Text = "Extracting...";
+            btnExecuteExtract.Enabled = false;
+            string strtmp = btnExecuteExtract.Text;
+            btnExecuteExtract.Text = "Extracting...";
             Application.DoEvents();
             try
             {
@@ -157,9 +171,10 @@ namespace zzzDeArchive_WinForms
             {
                 Logger.WriteLine(err.Message);
                 Logger.WriteLine(txtZZZ_in.Text.Trim());
+                MessageBox.Show(err.Message, "Exception");
             }
-            btnExtractExecute.Text = strtmp;
-            btnExtractExecute.Enabled = true;
+            btnExecuteExtract.Text = strtmp;
+            btnExecuteExtract.Enabled = true;
         }
 
         private void btnMain_Click(object sender, EventArgs e) => ButClick(btnMainExtractIN, txtZZZ_in, "main.zzz");
@@ -292,13 +307,23 @@ namespace zzzDeArchive_WinForms
             }
         }
 
-        private void openfolder(string folder)
+        private void openfolder(string folder,bool select = false)
         {
             try
             {
                 folder = Path.GetFullPath(folder);
-                if (Directory.Exists(folder))
+                if (Directory.Exists(folder) && !select)
+                {
+
                     Process.Start(folder);
+
+                }
+                else if ((Directory.Exists(folder) && select) || File.Exists(folder))
+                {
+                    string args = string.Format("/e, /select, \"{0}\"", folder);
+                    Process.Start("explorer", args);
+
+                }
             }
             catch (Exception err)
             {
@@ -336,10 +361,10 @@ namespace zzzDeArchive_WinForms
             {
                 Logger.WriteLine(err.Message);
                 Logger.WriteLine(txtBrowseZZZWrite_OUT.Text.Trim());
-                txtBrowseZZZWrite_OUT.Text = "";
+                lblBrowseZZZWrite_OUT.Text = "";
                 en = false;
             }
-            btnExcuteWrite.Enabled = en;
+            btnExecuteWrite.Enabled = en;
         }
 
         private void txtBrowseZZZWrite_OUT_DragDrop(object sender, DragEventArgs e) => multitxtDragDrop(txtBrowseZZZWrite_OUT, e);
@@ -359,7 +384,7 @@ namespace zzzDeArchive_WinForms
                     try
                     {
                         lblZZZ_out.Text = Path.GetFullPath(txtZZZ_out.Text.Trim());
-                        btnExtractExecute.Enabled = true;
+                        btnExecuteExtract.Enabled = true;
                         return;
                     }
                     catch (Exception err)
@@ -373,7 +398,7 @@ namespace zzzDeArchive_WinForms
             catch
             {
             }
-            btnExtractExecute.Enabled = false;
+            btnExecuteExtract.Enabled = false;
         }
 
         private void txtZZZ_out_DragDrop(object sender, DragEventArgs e) => multitxtDragDrop(txtZZZ_out, e);
@@ -399,8 +424,8 @@ namespace zzzDeArchive_WinForms
             ofdBrowse.Title = "Choose";
             ofdBrowse.CheckFileExists = true;
             ofdBrowse.Multiselect = false;
-            btnExtractExecute.Enabled = false;
-            btnExcuteWrite.Enabled = false;
+            btnExecuteExtract.Enabled = false;
+            btnExecuteWrite.Enabled = false;
             fbdBrowse = new FolderBrowserDialog();
             zzz = new Zzz();
 
@@ -412,10 +437,7 @@ namespace zzzDeArchive_WinForms
             Application.ApplicationExit += Application_ApplicationExit;
         }
 
-        private void Application_ApplicationExit(object sender, EventArgs e)
-        {
-            Logger.DisposeChildren();
-        }
+        private void Application_ApplicationExit(object sender, EventArgs e) => Logger.DisposeChildren();
 
         #endregion Constructors
 

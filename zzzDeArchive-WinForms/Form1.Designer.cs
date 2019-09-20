@@ -45,7 +45,7 @@
             this.btnZZZextractOUTbrowse = new System.Windows.Forms.Button();
             this.txtZZZ_out = new System.Windows.Forms.TextBox();
             this.lblZZZ_out = new System.Windows.Forms.Label();
-            this.btnExtractExecute = new System.Windows.Forms.Button();
+            this.btnExecuteExtract = new System.Windows.Forms.Button();
             this.tpWrite = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -62,7 +62,7 @@
             this.lblBrowseFolderWrite_IN = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.btnExcuteWrite = new System.Windows.Forms.Button();
+            this.btnExecuteWrite = new System.Windows.Forms.Button();
             this.tpMerge = new System.Windows.Forms.TabPage();
             this.btnMergeExecute = new System.Windows.Forms.TableLayoutPanel();
             this.btnExcuteMerge = new System.Windows.Forms.Button();
@@ -132,7 +132,7 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.btnExtractExecute, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.btnExecuteExtract, 0, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -309,16 +309,16 @@
             // 
             // btnExtractExecute
             // 
-            this.tableLayoutPanel1.SetColumnSpan(this.btnExtractExecute, 2);
-            this.btnExtractExecute.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnExtractExecute.Enabled = false;
-            this.btnExtractExecute.Location = new System.Drawing.Point(3, 337);
-            this.btnExtractExecute.Name = "btnExtractExecute";
-            this.btnExtractExecute.Size = new System.Drawing.Size(780, 78);
-            this.btnExtractExecute.TabIndex = 4;
-            this.btnExtractExecute.Text = "E&xecute";
-            this.btnExtractExecute.UseVisualStyleBackColor = true;
-            this.btnExtractExecute.Click += new System.EventHandler(this.btnExtractExecute_Click);
+            this.tableLayoutPanel1.SetColumnSpan(this.btnExecuteExtract, 2);
+            this.btnExecuteExtract.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnExecuteExtract.Enabled = false;
+            this.btnExecuteExtract.Location = new System.Drawing.Point(3, 337);
+            this.btnExecuteExtract.Name = "btnExtractExecute";
+            this.btnExecuteExtract.Size = new System.Drawing.Size(780, 78);
+            this.btnExecuteExtract.TabIndex = 4;
+            this.btnExecuteExtract.Text = "E&xecute";
+            this.btnExecuteExtract.UseVisualStyleBackColor = true;
+            this.btnExecuteExtract.Click += new System.EventHandler(this.btnExecuteExtract_Click);
             // 
             // tpWrite
             // 
@@ -340,7 +340,7 @@
             this.tableLayoutPanel4.Controls.Add(this.tableLayoutPanel5, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.label5, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.label8, 0, 1);
-            this.tableLayoutPanel4.Controls.Add(this.btnExcuteWrite, 0, 2);
+            this.tableLayoutPanel4.Controls.Add(this.btnExecuteWrite, 0, 2);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -528,16 +528,16 @@
             // 
             // btnExcuteWrite
             // 
-            this.tableLayoutPanel4.SetColumnSpan(this.btnExcuteWrite, 2);
-            this.btnExcuteWrite.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnExcuteWrite.Enabled = false;
-            this.btnExcuteWrite.Location = new System.Drawing.Point(3, 337);
-            this.btnExcuteWrite.Name = "btnExcuteWrite";
-            this.btnExcuteWrite.Size = new System.Drawing.Size(780, 78);
-            this.btnExcuteWrite.TabIndex = 4;
-            this.btnExcuteWrite.Text = "E&xecute";
-            this.btnExcuteWrite.UseVisualStyleBackColor = true;
-            this.btnExcuteWrite.Click += new System.EventHandler(this.btnExcuteWrite_Click);
+            this.tableLayoutPanel4.SetColumnSpan(this.btnExecuteWrite, 2);
+            this.btnExecuteWrite.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnExecuteWrite.Enabled = false;
+            this.btnExecuteWrite.Location = new System.Drawing.Point(3, 337);
+            this.btnExecuteWrite.Name = "btnExcuteWrite";
+            this.btnExecuteWrite.Size = new System.Drawing.Size(780, 78);
+            this.btnExecuteWrite.TabIndex = 4;
+            this.btnExecuteWrite.Text = "E&xecute";
+            this.btnExecuteWrite.UseVisualStyleBackColor = true;
+            this.btnExecuteWrite.Click += new System.EventHandler(this.btnExecuteWrite_Click);
             // 
             // tpMerge
             // 
@@ -771,7 +771,7 @@
             this.Name = "Form1";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "zzzDeArchive 0.1.7.4";
+            this.Text = "zzzDeArchive 0.1.7.5";
             this.tabControl.ResumeLayout(false);
             this.tpExtract.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -819,7 +819,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Button btnZZZextractOUTbrowse;
         private System.Windows.Forms.TextBox txtZZZ_out;
-        private System.Windows.Forms.Button btnExtractExecute;
+        private System.Windows.Forms.Button btnExecuteExtract;
         private System.Windows.Forms.Label lblZZZ_out;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
@@ -836,7 +836,7 @@
         private System.Windows.Forms.Label lblBrowseFolderWrite_IN;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Button btnExcuteWrite;
+        private System.Windows.Forms.Button btnExecuteWrite;
         private System.Windows.Forms.TableLayoutPanel btnMergeExecute;
         private System.Windows.Forms.Button btnExcuteMerge;
         private System.Windows.Forms.TabControl tabControl1;

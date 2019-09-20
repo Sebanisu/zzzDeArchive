@@ -10,9 +10,6 @@ namespace ZzzConsole
 {
     public class Program
     {
-        //private const string zzz.In = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\main.zzz.old";
-        //private const string zzz.In = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\other.zzz";
-
         #region Fields
 
         private static Zzz zzz = new Zzz();
@@ -23,6 +20,7 @@ namespace ZzzConsole
 
         private static string ExtractMenu()
         {
+        StartExtractMenu:
             string path;
             bool good = false;
             const string title = "\n     Extract zzz Screen\n";
@@ -62,15 +60,24 @@ namespace ZzzConsole
             }
             while (true);
             zzz.Path_ = path;
-            return zzz.Extract();
+            try
+            {
+                return zzz.Extract();
+            }
+            catch (PathTooLongException err)
+            {
+                Logger.WriteLine(err.Message);
+                goto StartExtractMenu;
+            }
         }
-        static string GetFullPath(string path)
+
+        private static string GetFullPath(string path)
         {
             try
             {
                 return Path.GetFullPath(path);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.WriteLine($"{e.Message}");
                 Logger.WriteLine($"path: {path}");
@@ -105,7 +112,14 @@ namespace ZzzConsole
                     path = GetFullPath(path);
                     zzz.Other = path;
                 }
-                zzz.FolderMerge();
+                try
+                {
+                    zzz.FolderMerge();
+                }
+                catch (PathTooLongException err)
+                {
+                    Logger.WriteLine(err.Message);
+                }
             }
             else if (Args.Count >= 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
@@ -119,8 +133,15 @@ namespace ZzzConsole
                     else
                         Logger.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
                 }
-                if (zzz.In.Count > 0)
-                    zzz.Merge();
+                try
+                {
+                    if (zzz.In.Count > 0)
+                        zzz.Merge();
+                }
+                catch (PathTooLongException err)
+                {
+                    Logger.WriteLine(err.Message);
+                }
             }
             else if (Args.Count == 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
@@ -130,7 +151,14 @@ namespace ZzzConsole
                 {
                     zzz.In.Add(Args[0]);
                     zzz.Path_ = Args[1];
-                    zzz.Extract();
+                    try
+                    {
+                        zzz.Extract();
+                    }
+                    catch (PathTooLongException err)
+                    {
+                        Logger.WriteLine(err.Message);
+                    }
                 }
                 else
                     Logger.WriteLine("Invalid Directory");
@@ -138,7 +166,14 @@ namespace ZzzConsole
             else if (Args.Count == 1 && Directory.Exists(Args[0] = GetFullPath(Args[0])))
             {
                 zzz.Path_ = Args[0];
-                zzz.Write();
+                try
+                {
+                    zzz.Write();
+                }
+                catch (PathTooLongException err)
+                {
+                    Logger.WriteLine(err.Message);
+                }
             }
             else
             {
@@ -179,7 +214,6 @@ namespace ZzzConsole
                 {
                 }
             }
-
             Logger.DisposeChildren();
         }
 
@@ -189,7 +223,7 @@ namespace ZzzConsole
             do
             {
                 Logger.Write(
-                    "            --- Welcome to the zzzDeArchive 0.1.7.4 ---\n" +
+                    "            --- Welcome to the zzzDeArchive 0.1.7.5 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
@@ -212,6 +246,7 @@ namespace ZzzConsole
 
         private static string MergeMenu()
         {
+        StartMergeMenu:
             string path;
             bool good = false;
             const string title = "\n     Merge zzz Screen\n";
@@ -278,7 +313,15 @@ namespace ZzzConsole
                 }
             }
             while (true);
-            return zzz.Merge();
+            try
+            {
+                return zzz.Merge();
+            }
+            catch (PathTooLongException err)
+            {
+                Logger.WriteLine(err.Message);
+                goto StartMergeMenu;
+            }
         }
 
         private static void TestMenu()
@@ -309,7 +352,14 @@ namespace ZzzConsole
                 Logger.WriteLine($"Testing: {dir}\n");
                 string[] subdirectoryEntries = Directory.GetDirectories(dir);
                 zzz.Path_ = dir;
-                zzz.Write();
+                try
+                {
+                    zzz.Write();
+                }
+                catch (PathTooLongException err)
+                {
+                    Logger.WriteLine(err.Message);
+                }
                 foreach (string subdir in subdirectoryEntries)
                     LoadSubDirs(subdir);
             }
@@ -318,6 +368,7 @@ namespace ZzzConsole
         //private const string zzz.Path = @"D:\ext";
         private static string WriteMenu()
         {
+        BeginWriteMenu:
             string path;
             bool good = false;
             do
@@ -338,7 +389,15 @@ namespace ZzzConsole
             while (true);
 
             zzz.Path_ = path;
-            return zzz.Write();
+            try
+            {
+                return zzz.Write();
+            }
+            catch (PathTooLongException err)
+            {
+                Logger.WriteLine(err.Message);
+                goto BeginWriteMenu;
+            }
         }
 
         #endregion Methods
