@@ -115,6 +115,10 @@ namespace zzzDeArchive_WinForms
                     {
                         MessageBox.Show(err0.Message, "Invalid Data Exception");
                     }
+                    catch (ArgumentException err0)
+                    {
+                        MessageBox.Show(err0.Message, "Argument Exception");
+                    }
                     btnMergeExecute.Text = strtmp;
                     btnMergeExecute.Enabled = true;
                 }

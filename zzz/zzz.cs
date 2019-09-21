@@ -315,31 +315,6 @@ namespace ZzzFile
 
         #region Methods
 
-        private static FileStream GetFs(ref string path)
-        {
-            string path_ = path;
-            FileStream fs;
-            int i = 0;
-            do
-            {
-                try
-                {
-                    fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-                }
-                catch (IOException e)
-                {
-                    fs = null;
-                    Logger.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
-                    path = System.IO.Path.Combine(
-                        System.IO.Path.GetDirectoryName(path_),
-                        $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
-                }
-            }
-            while (fs == null);
-
-            return fs;
-        }
-
         private static byte[] GetHash(BinaryReader br, uint size)
         {
             byte[] sha;
@@ -372,8 +347,47 @@ namespace ZzzFile
             string msg = $"Expected filesize ({head.ExpectedFileSize}) == resulting filesize ({stream.Length})";
             Logger.WriteLine(msg);
             if (head.ExpectedFileSize != stream.Length)
-            {   
+            {
                 throw new InvalidDataException(msg);
+            }
+        }
+
+        private FileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite)
+        {
+            string path_ = path;
+            FileStream fs;
+            int i = 0;
+            do
+            {
+                try
+                {
+                    fs = File.Open(path, FileMode.Create, fa, FileShare.Read);
+                }
+                catch (IOException e)
+                {
+                    fs = null;
+                    Logger.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
+                    path = System.IO.Path.Combine(
+                        System.IO.Path.GetDirectoryName(path_),
+                        $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
+                }
+            }
+            while (fs == null);
+
+            return fs;
+        }
+
+        private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read)
+        {
+            try
+            {
+                return File.Open(path, FileMode.Open, fa, FileShare.Read);
+            }
+            catch (IOException err)
+            {
+                Logger.WriteLine($"{path}\n{err.Message}");
+                Logger.WriteLine("Will attempt to open file with FileShare.ReadWrite. Could be issue if reading from a file as someone else is writing to it.");
+                return File.Open(path, FileMode.Open, fa, FileShare.ReadWrite);
             }
         }
 
@@ -548,7 +562,7 @@ namespace ZzzFile
         {
             Logger.WriteLine($"Extracting {In.First()} to {Path_}");
             Header head;
-            using (FileStream fs = File.Open(In.First(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream fs = GetFsRead(In.First()))
             {
                 using (BinaryReader br = new BinaryReader(fs))
                 {
@@ -595,7 +609,7 @@ namespace ZzzFile
                         byte[] osha = GetHash(br, item.Size);
                         byte[] isha = null;
                         string testpath = System.IO.Path.Combine(Path_, item.Filename);
-                        using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                        using (BinaryReader br2 = new BinaryReader(GetFsRead(testpath)))
                         {
                             isha = sha.ComputeHash(br2.BaseStream);
                         }
@@ -646,8 +660,12 @@ namespace ZzzFile
             (BinaryReader[] _in, BinaryReader _out) br;
             (Header[] _in, Header _out) head;
             Logger.WriteLine($"Opening {Path_}");
-            using (br._out = new BinaryReader(File.Open(Path_, FileMode.Open, FileAccess.Read, FileShare.Read)))
+            using (br._out = new BinaryReader(GetFsRead(Path_)))
             {
+                if (Path_.Equals(Out, StringComparison.OrdinalIgnoreCase))
+                {
+                    Out = Path.Combine(Path.GetDirectoryName(Out), $"{Path.GetFileNameWithoutExtension(Out)}0{Path.GetExtension(Out)}");
+                }
                 head._out = Header.Read(br._out);
                 TestSize(head._out, br._out.BaseStream);
                 br._in = new BinaryReader[In.Count];
@@ -655,7 +673,27 @@ namespace ZzzFile
                 for (int i = 0; i < In.Count; i++)
                 {
                     Logger.WriteLine($"Opening {In[i]}");
-                    br._in[i] = new BinaryReader(File.Open(In[i], FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                    if (In[i].Equals(Path_, StringComparison.OrdinalIgnoreCase) || In[i].Equals(Out, StringComparison.OrdinalIgnoreCase))
+                    {
+                        string msg = $"{In[i]}\n" +
+                            "cannot match\n" +
+                            $"{Path_}\n" +
+                            "or\n" +
+                            $"{Out}\n" +
+                            $"This may caused undesired results. Like writing to a file you are reading from or undoing changes you are trying to make";
+                        Logger.WriteLine(msg);
+                        throw new ArgumentException(msg);
+                    }
+                    else if (Path.GetFileName(In[i]).Equals("main.zzz", StringComparison.OrdinalIgnoreCase) ||
+                        Path.GetFileName(In[i]).Equals("other.zzz", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string msg = $"{In[i]}\n" +
+                            "Should not match main.zzz or other.zzz\n" +
+                            "As this could be a mistake and you would be replacing the mods with your source files";
+                        Logger.WriteLine(msg);
+                        throw new ArgumentException(msg);
+                    }
+                    br._in[i] = new BinaryReader(GetFsRead(In[i]));
                     head._in[i] = Header.Read(br._in[i]);
                     TestSize(head._in[i], br._in[i].BaseStream);
                 }
@@ -663,7 +701,7 @@ namespace ZzzFile
 
                 merged.head = Header.Merge(ref head._out, ref head._in, SkipWarning);
 
-                using (FileStream fs = GetFs(ref _out))
+                using (FileStream fs = GetFsWrite(ref _out))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
@@ -763,7 +801,7 @@ namespace ZzzFile
             files = TestLength(files);
             Logger.WriteLine(head.ToString());
             if (Out != null)
-                using (FileStream fs = GetFs(ref _out))
+                using (FileStream fs = GetFsWrite(ref _out))
                 {
                     using (BinaryWriter bw = new BinaryWriter(fs))
                     {
@@ -773,7 +811,7 @@ namespace ZzzFile
                         {
                             FileInfo fi = new FileInfo(file);
                             Logger.WriteLine($"Writing {file} {fi.Length} bytes");
-                            using (BinaryReader br = new BinaryReader(File.Open(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                            using (BinaryReader br = new BinaryReader(GetFsRead(file)))
                             {
                                 byte[] buffer;
                                 do
@@ -808,7 +846,7 @@ namespace ZzzFile
                                 byte[] osha = GetHash(br, item.Size);
                                 byte[] isha = null;
                                 string testpath = System.IO.Path.Combine(Path_, item.Filename);
-                                using (BinaryReader br2 = new BinaryReader(File.Open(testpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                                using (BinaryReader br2 = new BinaryReader(GetFsRead(testpath)))
                                 {
                                     isha = sha.ComputeHash(br2.BaseStream);
                                 }

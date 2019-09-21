@@ -125,6 +125,9 @@ namespace ZzzConsole
                 catch (InvalidDataException)
                 {
                 }
+                catch (ArgumentException)
+                {
+                }
             }
             else if (Args.Count >= 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
             {
@@ -148,6 +151,9 @@ namespace ZzzConsole
                 {
                 }
                 catch (InvalidDataException)
+                {
+                }
+                catch (ArgumentException)
                 {
                 }
             }
@@ -207,7 +213,20 @@ namespace ZzzConsole
                 else if ((k.Key == ConsoleKey.D4 || k.Key == ConsoleKey.NumPad4) &&
                     (Directory.EnumerateFiles(zzz.id1).Count() > 1 || Directory.EnumerateFiles(zzz.id2).Count() > 1))
                 {
-                    openfolder(zzz.FolderMerge());
+                    
+                    try
+                    {
+                        openfolder(zzz.FolderMerge());
+                    }
+                    catch (PathTooLongException)
+                    {
+                    }
+                    catch (InvalidDataException)
+                    {
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
                 else if (k.Key == ConsoleKey.T)
                 {
@@ -251,7 +270,10 @@ namespace ZzzConsole
                 k = Console.ReadKey();
                 Logger.WriteLine();
                 if (k.Key == ConsoleKey.Escape)
+                {
+                    Logger.DisposeChildren();
                     Environment.Exit(0);
+                }
             }
             while (k.Key != ConsoleKey.T && k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.D4 && k.Key != ConsoleKey.NumPad4 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
             return k;
@@ -337,6 +359,10 @@ namespace ZzzConsole
                 goto StartMergeMenu;
             }
             catch (InvalidDataException)
+            {
+                goto StartMergeMenu;
+            }
+            catch (ArgumentException )
             {
                 goto StartMergeMenu;
             }
