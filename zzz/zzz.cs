@@ -10,6 +10,7 @@ namespace ZzzArchive
 
     public class Zzz
     {
+
         #region Fields
 
         private const int max_path = 260;
@@ -22,8 +23,6 @@ namespace ZzzArchive
         #endregion Fields
 
         #region Methods
-
-
 
         private static bool IsMainOrOther(string main, string x) => Path.GetFileName(x).Equals(main, StringComparison.OrdinalIgnoreCase);
 
@@ -44,6 +43,21 @@ namespace ZzzArchive
             if (head.ExpectedFileSize != stream.Length)
             {
                 throw new InvalidDataException(msg);
+            }
+        }
+
+        private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read, FileShare fs = FileShare.Read)
+        {
+            try
+            {
+                return File.Open(path, FileMode.Open, fa, fs);
+            }
+            catch (IOException err)
+            {
+                Logger.WriteLine($"{this} :: {path}\n{err.Message}");
+                Logger.WriteLine($"Will attempt to open file with {fa} & {fs} only. Could be issue if reading from a file as someone else is writing to it.\n" +
+                    $"Will try again with {FileShare.ReadWrite}");
+                return File.Open(path, FileMode.Open, fa, FileShare.ReadWrite);
             }
         }
 
@@ -71,22 +85,6 @@ namespace ZzzArchive
 
             return fstream;
         }
-
-        private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read, FileShare fs = FileShare.Read)
-        {
-            try
-            {
-                return File.Open(path, FileMode.Open, fa, fs);
-            }
-            catch (IOException err)
-            {
-                Logger.WriteLine($"{this} :: {path}\n{err.Message}");
-                Logger.WriteLine($"Will attempt to open file with {fa} & {fs} only. Could be issue if reading from a file as someone else is writing to it.\n" +
-                    $"Will try again with {FileShare.ReadWrite}");
-                return File.Open(path, FileMode.Open, fa, FileShare.ReadWrite);
-            }
-        }
-
         private bool IsMainOrOther(string x) => IsMainOrOther(main, x) || IsMainOrOther(other, x);
 
         private void Merge(List<string> f1, string main, string arg = null)
@@ -190,6 +188,41 @@ namespace ZzzArchive
 
         #endregion Methods
 
+        #region Structs
+
+        private struct Merged
+        {
+            #region Fields
+
+            public BinaryReader br;
+            public BinaryWriter bw;
+            public Header head;
+
+            #endregion Fields
+        }
+
+        private struct TwoBR
+        {
+            #region Fields
+
+            public BinaryReader[] _in;
+            public BinaryReader _out;
+
+            #endregion Fields
+        }
+
+        private struct TwoHeader
+        {
+            #region Fields
+
+            public Header[] _in;
+            public Header _out;
+
+            #endregion Fields
+        }
+
+        #endregion Structs
+
         #region Constructors
 
         public Zzz()
@@ -205,14 +238,6 @@ namespace ZzzArchive
         }
 
         #endregion Constructors
-
-        //public Zzz(string path, List<string> @in, string @out = null)
-        //{
-        //    sha = new SHA1CryptoServiceProvider();
-        //    Path_ = path;
-        //    Out = @out;
-        //    In = @in;
-        //}
 
         #region Properties
 
@@ -336,7 +361,6 @@ namespace ZzzArchive
             Merge(f2, other, Other);
             return od;
         }
-
         public string Merge()
         {
             Logger.WriteLine($"Merging files:");
@@ -346,8 +370,8 @@ namespace ZzzArchive
             Logger.WriteLine($"Output: {Out}");
             TestLength(In);
             if (Out != null) { };
-            (BinaryReader[] _in, BinaryReader _out) br;
-            (Header[] _in, Header _out) head;
+            TwoBR br;
+            TwoHeader head;
             Logger.WriteLine($"Opening {Path_}");
             using (br._out = new BinaryReader(GetFsRead(Path_)))
             {
@@ -382,7 +406,7 @@ namespace ZzzArchive
                     head._in[i] = Header.Read(br._in[i]);
                     TestSize(head._in[i], br._in[i].BaseStream);
                 }
-                (Header head, BinaryWriter bw, BinaryReader br) merged;
+                Merged merged;
 
                 merged.head = Header.Merge(ref head._out, ref head._in, SkipWarning);
 
