@@ -12,25 +12,45 @@ namespace ZzzArchive
         #endregion Fields
 
         #region Methods
-
+        public static byte[] GetHashClose(Stream stream, ulong size)
+        {
+            try
+            {
+                return GetHash(stream, size);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
         public static byte[] GetHash(Stream stream, ulong size)
         {
             BinaryReader br = new BinaryReader(stream);
             using (MemoryStream ms = new MemoryStream())
             using (BinaryWriter tmp = new BinaryWriter(ms))
             {
-                ReadUInt(tmp, br, size);
+                Read(tmp, br, size);
                 return GetHash(ms);
             }
         }
-
+        public static byte[] GetHashClose(Stream stream)
+        {
+            try
+            {
+                return GetHash(stream);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
         public static byte[] GetHash(Stream stream)
         {
             stream.Seek(0, SeekOrigin.Begin);
             return sha.ComputeHash(stream);
         }
 
-        private static void ReadUInt(BinaryWriter bw, BinaryReader br, ulong size)
+        private static void Read(BinaryWriter bw, BinaryReader br, ulong size)
         {
             while (size.CompareTo(0) > 0)
             {

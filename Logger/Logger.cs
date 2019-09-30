@@ -104,6 +104,10 @@ namespace ZzzArchive
             }
             return @in;
         }
+        public static string WriteLineThrow(string @in = "", bool skipConsole = false, bool skipLog = false)
+        {
+            throw new Exception(WriteLine(@in,skipConsole,skipLog));
+        }
 
         public static void DisposeChildren()
         {

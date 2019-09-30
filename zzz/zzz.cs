@@ -47,41 +47,42 @@ namespace ZzzArchive
             }
         }
 
-        private FileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite)
+        private FileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite, FileShare fs = FileShare.Read)
         {
             string path_ = path;
-            FileStream fs;
+            FileStream fstream;
             int i = 0;
             do
             {
                 try
                 {
-                    fs = File.Open(path, FileMode.Create, fa, FileShare.Read);
+                    fstream = File.Open(path, FileMode.Create, fa, fs);
                 }
                 catch (IOException e)
                 {
-                    fs = null;
+                    fstream = null;
                     Logger.Write($"{e.Message} :: Error writing to: {path}\n Going to increment file and try again...");
                     path = System.IO.Path.Combine(
                         System.IO.Path.GetDirectoryName(path_),
                         $"{System.IO.Path.GetFileNameWithoutExtension(path_)}{i++}.zzz");
                 }
             }
-            while (fs == null);
+            while (fstream == null);
 
-            return fs;
+            return fstream;
         }
 
-        private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read)
+        private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read, FileShare fs = FileShare.Read)
         {
             try
             {
-                return File.Open(path, FileMode.Open, fa, FileShare.Read);
+                return File.Open(path, FileMode.Open, fa, fs);
             }
             catch (IOException err)
             {
-                Logger.WriteLine($"{path}\n{err.Message}");
-                Logger.WriteLine("Will attempt to open file with FileShare.ReadWrite. Could be issue if reading from a file as someone else is writing to it.");
+                Logger.WriteLine($"{this} :: {path}\n{err.Message}");
+                Logger.WriteLine($"Will attempt to open file with {fa} & {fs} only. Could be issue if reading from a file as someone else is writing to it.\n" +
+                    $"Will try again with {FileShare.ReadWrite}");
                 return File.Open(path, FileMode.Open, fa, FileShare.ReadWrite);
             }
         }
@@ -130,8 +131,7 @@ namespace ZzzArchive
                     $"must also be less than {max_path}";
             if (In.First().Length >= max_path || Path_.Length + maxPathLength + 1 >= max_path)
             {
-                Logger.WriteLine(str);
-                throw new PathTooLongException(str);
+                throw new PathTooLongException(Logger.WriteLine(str));
             }
             else
             {
@@ -148,8 +148,7 @@ namespace ZzzArchive
                     $"Both must be less than {max_path}";
             if (Out.Length >= max_path || maxPathLength >= max_path)
             {
-                Logger.WriteLine(str);
-                throw new PathTooLongException(str);
+                throw new PathTooLongException(Logger.WriteLine(str));
             }
             else
             {
@@ -168,8 +167,7 @@ namespace ZzzArchive
                 $"Both all be less than {max_path}";
             if (Out.Length >= max_path || Path_.Length >= max_path || maxPathLength >= max_path)
             {
-                Logger.WriteLine(str);
-                throw new PathTooLongException(str);
+                throw new PathTooLongException(Logger.WriteLine(str));
             }
             else
             {
@@ -278,7 +276,7 @@ namespace ZzzArchive
                                     fs.Seek(d.Offset, SeekOrigin.Begin);
                                     ReadUInt(bw, br, d.Size);
                                 }
-                                else throw new ArgumentOutOfRangeException($"d.offset is too large! ({d.Offset})");
+                                else throw new ArgumentOutOfRangeException(Logger.WriteLine($"d.offset is too large! ({d.Offset})"));
                             }
                         }
                     }
@@ -289,30 +287,28 @@ namespace ZzzArchive
                     {
                         if (item.Offset > fs.Length)
                         {
-                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
-                                "offset: {item.Offset}");
+                            throw new ArgumentOutOfRangeException(Logger.WriteLine($"Offset too large!\n" +
+                                "offset: {item.Offset}"));
                         }
                         if (item.Offset + item.Size > fs.Length)
                         {
-                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                            throw new ArgumentOutOfRangeException(Logger.WriteLine($"Offset too large!\n" +
                                 "offset: {item.Offset}\n" +
-                                "size: {item.Size}");
+                                "size: {item.Size}"));
                         }
                         fs.Seek(item.Offset, SeekOrigin.Begin);
 
                         byte[] osha = HashTester.GetHash(br.BaseStream, item.Size);
                         byte[] isha = null;
                         string testpath = System.IO.Path.Combine(Path_, item.Filename);
-                        Stream f;
-                        isha = HashTester.GetHash(f=GetFsRead(testpath));
-                        f.Close();
+                        isha = HashTester.GetHashClose(GetFsRead(testpath));
                         if (isha == null)
                         {
-                            throw new Exception($"failed to verify ({testpath}) sha1 value is null");
+                            Logger.WriteLineThrow($"failed to verify ({testpath}) sha1 value is null");
                         }
                         else if (!isha.SequenceEqual(osha))
                         {
-                            throw new Exception($"failed to verify ({testpath}) sha1 mismatch \n" +
+                            Logger.WriteLineThrow($"failed to verify ({testpath}) sha1 mismatch \n" +
                                 $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
                                 $"offset: {item.Offset}\n" +
                                 $"size:   {item.Size}");
@@ -368,23 +364,19 @@ namespace ZzzArchive
                     Logger.WriteLine($"Opening {In[i]}");
                     if (In[i].Equals(Path_, StringComparison.OrdinalIgnoreCase) || In[i].Equals(Out, StringComparison.OrdinalIgnoreCase))
                     {
-                        string msg = $"{In[i]}\n" +
+                        throw new ArgumentException(Logger.WriteLine($"{In[i]}\n" +
                             "cannot match\n" +
                             $"{Path_}\n" +
                             "or\n" +
                             $"{Out}\n" +
-                            $"This may caused undesired results. Like writing to a file you are reading from or undoing changes you are trying to make";
-                        Logger.WriteLine(msg);
-                        throw new ArgumentException(msg);
+                            $"This may caused undesired results. Like writing to a file you are reading from or undoing changes you are trying to make"));
                     }
                     else if (Path.GetFileName(In[i]).Equals("main.zzz", StringComparison.OrdinalIgnoreCase) ||
                         Path.GetFileName(In[i]).Equals("other.zzz", StringComparison.OrdinalIgnoreCase))
                     {
-                        string msg = $"{In[i]}\n" +
+                        throw new ArgumentException(Logger.WriteLine($"{In[i]}\n" +
                             "Should not match main.zzz or other.zzz\n" +
-                            "As this could be a mistake and you would be replacing the mods with your source files";
-                        Logger.WriteLine(msg);
-                        throw new ArgumentException(msg);
+                            "As this could be a mistake and you would be replacing the mods with your source files"));
                     }
                     br._in[i] = new BinaryReader(GetFsRead(In[i]));
                     head._in[i] = Header.Read(br._in[i]);
@@ -425,14 +417,14 @@ namespace ZzzArchive
                     {
                         if (item.Offset > fs.Length)
                         {
-                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
-                                "offset: {item.Offset}");
+                            throw new ArgumentOutOfRangeException(Logger.WriteLine($"Offset too large!\n" +
+                                "offset: {item.Offset}"));
                         }
                         if (item.Offset + item.Size > fs.Length)
                         {
-                            throw new ArgumentOutOfRangeException($"Offset too large!\n" +
+                            throw new ArgumentOutOfRangeException(Logger.WriteLine($"Offset too large!\n" +
                                 "offset: {item.Offset}\n" +
-                                "size: {item.Size}");
+                                "size: {item.Size}"));
                         }
                         fs.Seek(item.Offset, SeekOrigin.Begin);
                         byte[] osha = null;
@@ -461,11 +453,11 @@ namespace ZzzArchive
                         }
                         if (isha == null)
                         {
-                            throw new Exception($"failed to verify ({item.Filename}) sha1 value is null");
+                            Logger.WriteLineThrow($"failed to verify ({item.Filename}) sha1 value is null");
                         }
                         else if (!isha.SequenceEqual(osha))
                         {
-                            throw new Exception($"failed to verify ({item.Filename}) sha1 mismatch \n" +
+                            Logger.WriteLineThrow($"failed to verify ({item.Filename}) sha1 mismatch \n" +
                                 $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
                                 $"merged offset: {item.Offset}\n" +
                                 $"merged size:   {item.Size}\n" +
@@ -538,16 +530,14 @@ namespace ZzzArchive
 
                                 byte[] osha = HashTester.GetHash(br.BaseStream, item.Size);
                                 string testpath = System.IO.Path.Combine(Path_, item.Filename);
-                                Stream f;
-                                byte[] isha = HashTester.GetHash(f=GetFsRead(testpath));
-                                f.Close();
+                                byte[] isha = HashTester.GetHashClose(GetFsRead(testpath));
                                 if (isha == null)
                                 {
-                                    throw new Exception($"failed to verify ({testpath}) sha1 value is null");
+                                    Logger.WriteLineThrow($"failed to verify ({testpath}) sha1 value is null");
                                 }
                                 else if (!isha.SequenceEqual(osha))
                                 {
-                                    throw new Exception($"failed to verify ({testpath}) sha1 mismatch \n" +
+                                    Logger.WriteLineThrow($"failed to verify ({testpath}) sha1 mismatch \n" +
                                         $"sha1:   {BitConverter.ToString(isha).Replace("-", "")} != {BitConverter.ToString(osha).Replace("-", "")}\n" +
                                         $"offset: {item.Offset}\n" +
                                         $"size:   {item.Size}");

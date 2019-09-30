@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace zzzDeArchive_WinForms
+namespace ZzzArchive
 {
     public partial class Form1 : Form
     {

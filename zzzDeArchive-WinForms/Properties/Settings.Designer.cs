@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace zzzDeArchive_WinForms.Properties
+namespace ZzzArchive.Properties
 {
 
 

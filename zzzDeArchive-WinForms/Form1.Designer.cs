@@ -1,4 +1,4 @@
-﻿namespace zzzDeArchive_WinForms
+﻿namespace ZzzArchive
 {
     partial class Form1
     {
