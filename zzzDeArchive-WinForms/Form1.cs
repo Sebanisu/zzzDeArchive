@@ -1,4 +1,4 @@
-﻿using _Logger;
+﻿using ZzzArchive;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using ZzzFile;
 
 namespace zzzDeArchive_WinForms
 {

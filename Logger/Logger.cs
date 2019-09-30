@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 
-namespace _Logger
+namespace ZzzArchive
 {
     public class Logger : IDisposable
     {

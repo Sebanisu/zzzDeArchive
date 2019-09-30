@@ -1,12 +1,11 @@
-﻿using _Logger;
+﻿using ZzzArchive;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using ZzzFile;
 
-namespace ZzzConsole
+namespace ZzzArchive
 {
     public class Program
     {
