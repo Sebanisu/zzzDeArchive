@@ -60,16 +60,16 @@ namespace ZzzArchive
             }
         }
 
-        private QueueFileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite, FileShare fs = FileShare.Read)
+        private FileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite, FileShare fs = FileShare.Read)
         {
             string path_ = path;
-            QueueFileStream fstream;
+            FileStream fstream;
             int i = 0;
             do
             {
                 try
                 {
-                    fstream = new QueueFileStream(path, FileMode.Create, fa, fs);
+                    fstream = new FileStream(path, FileMode.Create, fa, fs);
                 }
                 catch (IOException e)
                 {
@@ -409,7 +409,7 @@ namespace ZzzArchive
 
                 merged.head = Header.Merge(ref head._out, ref head._in, SkipWarning);
 
-                using (QueueFileStream fs = GetFsWrite(ref _out))
+                using (FileStream fs = GetFsWrite(ref _out))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
@@ -449,7 +449,7 @@ namespace ZzzArchive
                                 "offset: {item.Offset}\n" +
                                 "size: {item.Size}"));
                         }
-                        fs.SeekRead(item.Offset, SeekOrigin.Begin);
+                        fs.Seek(item.Offset, SeekOrigin.Begin);
                         byte[] osha = null;
                         osha = HashTester.GetHash(merged.br.BaseStream, item.Size);
                         byte[] isha = null;
