@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("zzzDeArchive")]
-[assembly: AssemblyDescription("Extract and Create FF8 Remaster zzz files")]
+[assembly: AssemblyTitle("zzz")]
+[assembly: AssemblyDescription("zzz.dll for front ends to use to unarchive and archive zzz files for ff8 remaster")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("zzzDeArchive")]
+[assembly: AssemblyProduct("zzz")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d19bc5a5-d15e-46bb-94fb-7c4be196d275")]
+[assembly: Guid("b2e2802a-c6c8-4dd3-9bac-5f8717b82b3e")]
 
 // Version information for an assembly consists of the following four values:
 //

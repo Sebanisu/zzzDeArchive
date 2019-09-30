@@ -1,95 +1,90 @@
-﻿using System;
+﻿using _Logger;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using ZzzFile;
 
-namespace zzzDeArchive
+namespace ZzzConsole
 {
     public class Program
     {
         #region Fields
 
-        //private const string _in = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\main.zzz.old";
-        //private const string _in = @"C:\Program Files (x86)\Steam\steamapps\common\FINAL FANTASY VIII Remastered\other.zzz";
-
-        private const string _out = @"out.zzz";
-        private static string _path;
-        private static string _in;
-
-        public static List<string> Args { get; private set; }
-
-        //private const string _path = @"D:\ext";
+        private static Zzz zzz = new Zzz();
 
         #endregion Fields
 
         #region Methods
 
-        private static void Write()
+        private static string ExtractMenu()
         {
-            ZzzHeader head = ZzzHeader.Read(_path, out string[] f);
-            string path = Path.Combine(Directory.GetCurrentDirectory(), _out);
-            Console.WriteLine(head);
-            using (FileStream fs = File.Create(path))
+        StartExtractMenu:
+            string path;
+            bool good = false;
+            const string title = "\n     Extract zzz Screen\n";
+            do
             {
-                using (BinaryWriter bw = new BinaryWriter(fs))
-                {
-                    head.Write(bw);
-                    foreach (string file in f)
-                    {
-                        bw.Write(File.ReadAllBytes(file));
-                    }
-                }
+                Logger.Write(
+                    title +
+                    "Enter the path to zzz file: ");
+                path = Console.ReadLine();
+                path = path.Trim('"');
+                path = path.Trim();
+                Logger.WriteLine();
+                path = GetFullPath(path);
+                good = File.Exists(path);
+                if (!good)
+                    Logger.WriteLine("File doesn't exist\n");
+                else break;
             }
-            Console.WriteLine($"Saved to: {path}");
+            while (true);
+
+            zzz.In = new List<string> { path };
+            do
+            {
+                Logger.Write(
+                    title +
+                    "Enter the path to extract contents: ");
+                path = Console.ReadLine();
+                path = path.Trim('"');
+                path = path.Trim();
+                path = GetFullPath(path);
+                Logger.WriteLine();
+                Directory.CreateDirectory(path);
+                good = Directory.Exists(path);
+                if (!good)
+                    Logger.WriteLine("Directory doesn't exist\n");
+                else break;
+            }
+            while (true);
+            zzz.Path_ = path;
             try
             {
-                Process.Start(Path.GetDirectoryName(path));
+                return zzz.Extract();
             }
-            catch
+            catch (PathTooLongException)
             {
+                goto StartExtractMenu;
+            }
+            catch (InvalidDataException)
+            {
+                goto StartExtractMenu;
             }
         }
 
-        private static void Extract()
+        private static string GetFullPath(string path)
         {
-            ZzzHeader head;
-            using (FileStream fs = File.OpenRead(_in))
-            {
-                using (BinaryReader br = new BinaryReader(fs))
-                {
-                    head = ZzzHeader.Read(br);
-                    Console.WriteLine(head);
-
-                    //Directory.CreateDirectory(_path);
-                    foreach (FileData d in head.Data)
-                    {
-                        Console.WriteLine($"Writing {d}");
-                        string path = Path.Combine(_path, d.Filename);
-                        Directory.CreateDirectory(Path.GetDirectoryName(path));
-                        using (FileStream fso = File.Create(path))
-                        {
-                            using (BinaryWriter bw = new BinaryWriter(fso))
-                            {
-                                if (d.Offset <= long.MaxValue)
-                                {
-                                    fs.Seek((long)d.Offset, SeekOrigin.Begin);
-                                    bw.Write(br.ReadBytes((int)d.Size));
-                                }
-                                else throw new ArgumentOutOfRangeException($"d.offset is too large! ({d.Offset})");
-                            }
-                        }
-                    }
-                }
-            }
-            Console.WriteLine($"Saved to: {_path}");
             try
             {
-                Process.Start(_path);
+                return Path.GetFullPath(path);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.WriteLine($"{e.Message}");
+                Logger.WriteLine($"path: {path}");
+                return null;
             }
         }
 
@@ -97,37 +92,161 @@ namespace zzzDeArchive
         {
             Args = new List<string>(args);
             Args.ForEach(x => x.Trim('"'));
-            if (Args.Count == 2 && File.Exists(Args[0]))
+            int ind = Args.FindIndex(x => x.Equals("-skipwarning", StringComparison.OrdinalIgnoreCase));
+            if (ind >= 0)
             {
+                zzz.SkipWarning = true;
+                Args.RemoveAt(ind);
+            }
+            if ((Args.Count == 1 || Args.Count == 3) &&
+                (Args[0].Equals("-foldermerge", StringComparison.OrdinalIgnoreCase) ||
+                Args[0].Equals("-mergefolder", StringComparison.OrdinalIgnoreCase)) &&
+                (Directory.EnumerateFiles(zzz.id1).Count() > 1 ||
+                Directory.EnumerateFiles(zzz.id2).Count() > 1 ||
+                Directory.EnumerateDirectories(zzz.id1).Count() > 1 ||
+                Directory.EnumerateDirectories(zzz.id2).Count() > 1))
+            {
+                if (Args.Count == 3)
+                {
+                    string path = Args[1].Trim();
+                    path = GetFullPath(path);
+                    zzz.Main = path;
+                    path = Args[2].Trim();
+                    path = GetFullPath(path);
+                    zzz.Other = path;
+                }
+                try
+                {
+                    zzz.FolderMerge();
+                }
+                catch (PathTooLongException)
+                {
+                }
+                catch (InvalidDataException)
+                {
+                }
+                catch (ArgumentException)
+                {
+                }
+            }
+            else if (Args.Count >= 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
+            {
+                //merge
+                zzz.Path_ = Args[0];
+                zzz.In = new List<string>();
+                for (int i = 1; i < Args.Count; i++)
+                {
+                    Args[i] = GetFullPath(Args[i]);
+                    if (File.Exists(Args[i]) && !zzz.In.Contains(Args[i]))
+                        zzz.In.Add(Args[i]);
+                    else
+                        Logger.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
+                }
+                try
+                {
+                    if (zzz.In.Count > 0)
+                        zzz.Merge();
+                }
+                catch (PathTooLongException)
+                {
+                }
+                catch (InvalidDataException)
+                {
+                }
+                catch (ArgumentException)
+                {
+                }
+            }
+            else if (Args.Count == 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
+            {
+                Args[1] = GetFullPath(Args[1]);
                 Directory.CreateDirectory(Args[1]);
+                zzz.In = new List<string>();
                 if (Directory.Exists(Args[1]))
                 {
-                    _in = Args[0];
-                    _path = Args[1];
-                    Extract();
+                    zzz.In.Add(Args[0]);
+                    zzz.Path_ = Args[1];
+                    try
+                    {
+                        zzz.Extract();
+                    }
+                    catch (PathTooLongException)
+                    {
+                    }
+                    catch (InvalidDataException)
+                    {
+                    }
                 }
                 else
-                    Console.WriteLine("Invalid Directory");
+                    Logger.WriteLine("Invalid Directory");
             }
-            else if (Args.Count == 1 && Directory.Exists(Args[0]))
+            else if (Args.Count == 1 && Directory.Exists(Args[0] = GetFullPath(Args[0])))
             {
-                _path = Args[0];
-                Write();
+                zzz.Path_ = Args[0];
+                try
+                {
+                    zzz.Write();
+                }
+                catch (PathTooLongException)
+                {
+                }
+                catch (InvalidDataException)
+                {
+                }
             }
             else
             {
+            start:
                 ConsoleKeyInfo k = MainMenu();
                 if (k.Key == ConsoleKey.D1 || k.Key == ConsoleKey.NumPad1)
                 {
-                    ExtractMenu();
+                    openfolder(ExtractMenu());
                 }
                 else if (k.Key == ConsoleKey.D2 || k.Key == ConsoleKey.NumPad2)
                 {
-                    WriteMenu();
+                    openfolder(WriteMenu());
                 }
-                Console.WriteLine("\nPress any key to exit...");
-                Console.ReadKey();
+                else if (k.Key == ConsoleKey.D3 || k.Key == ConsoleKey.NumPad3)
+                {
+                    openfolder(MergeMenu());
+                }
+                else if ((k.Key == ConsoleKey.D4 || k.Key == ConsoleKey.NumPad4) &&
+                    (Directory.EnumerateFiles(zzz.id1).Count() > 1 || Directory.EnumerateFiles(zzz.id2).Count() > 1))
+                {
+                    
+                    try
+                    {
+                        openfolder(zzz.FolderMerge());
+                    }
+                    catch (PathTooLongException)
+                    {
+                    }
+                    catch (InvalidDataException)
+                    {
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+                else if (k.Key == ConsoleKey.T)
+                {
+                    TestMenu();
+                }
+                goto start;
             }
+            void openfolder(string folder)
+            {
+                try
+                {
+                    folder = GetFullPath(folder);
+                    if (Directory.Exists(folder))
+                        Process.Start(folder);
+                }
+                catch
+                {
+                }
+            }
+            Logger.DisposeChildren();
         }
 
         private static ConsoleKeyInfo MainMenu()
@@ -135,244 +254,207 @@ namespace zzzDeArchive
             ConsoleKeyInfo k;
             do
             {
-                Console.Write(
-                    "            --- Welcome to the zzzDeArchive 0.11 ---\n" +
+                Logger.Write(
+                    "            --- Welcome to the zzzDeArchive 0.1.7.5 ---\n" +
                     "     Code C# written by Sebanisu, Reversing and Python by Maki\n\n" +
                     "1) Extract - Extract zzz file\n" +
                     "2) Write - Write folder contents to a zzz file\n" +
+                    "3) Merge - Write unique data from two or more zzz files into one zzz file.\n");
+                if (Directory.EnumerateFiles(zzz.id1).Count() > 1 || Directory.EnumerateFiles(zzz.id2).Count() > 1)
+                    Logger.Write("4) FolderMerge - Automaticly merge files in the IN subfolder. To the OUT folder\n");
+                Logger.Write(
+                    "\n" +
+                    "Escape) Exit\n\n" +
+
                     "  Select: ");
                 k = Console.ReadKey();
-                Console.WriteLine();
+                Logger.WriteLine();
+                if (k.Key == ConsoleKey.Escape)
+                {
+                    Logger.DisposeChildren();
+                    Environment.Exit(0);
+                }
             }
-            while (k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2);
+            while (k.Key != ConsoleKey.T && k.Key != ConsoleKey.D1 && k.Key != ConsoleKey.D2 && k.Key != ConsoleKey.D4 && k.Key != ConsoleKey.NumPad4 && k.Key != ConsoleKey.NumPad1 && k.Key != ConsoleKey.NumPad2 && k.Key != ConsoleKey.D3 && k.Key != ConsoleKey.NumPad3);
             return k;
         }
 
-        private static void ExtractMenu()
+        private static string MergeMenu()
         {
+        StartMergeMenu:
             string path;
             bool good = false;
+            const string title = "\n     Merge zzz Screen\n";
             do
             {
-                Console.Write(
-                    "     Extract zzz Screen\n" +
-                    "Enter the path to zzz file: ");
+                Logger.Write(
+                    title +
+                    "  Only unchanged data will be kept, rest will be replaced...\n" +
+                    "Enter the path to zzz file with ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Logger.Write("Original/OLD data");
+                Console.ForegroundColor = ConsoleColor.White;
+                Logger.Write(": ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
+                path = GetFullPath(path);
                 good = File.Exists(path);
                 if (!good)
-                    Console.WriteLine("File doesn't exist\n");
+                    Logger.WriteLine("File doesn't exist\n");
                 else break;
             }
             while (true);
 
-            _in = path;
+            zzz.Path_ = path;
+            zzz.In = new List<string>();
             do
             {
-                Console.Write(
-                    "     Extract zzz Screen\n" +
-                    "Enter the path to extract contents: ");
+                if (zzz.In.Count == 0)
+                {
+                    Logger.Write(
+                        "Enter the path to a zzz file with ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Logger.Write("NEW data");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Logger.Write(": ");
+                }
+                else
+                {
+                    Logger.Write($"Path to an additional zzz file or press enter to continue: ");
+                }
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
-                Directory.CreateDirectory(path);
-                good = Directory.Exists(path);
-                if (!good)
-                    Console.WriteLine("Directory doesn't exist\n");
-                else break;
+                Logger.WriteLine();
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    if (zzz.In.Count > 0)
+                        break;
+                    else
+                        Logger.WriteLine("Need atleast 1 file you entered an empty value.");
+                }
+                else
+                {
+                    path = GetFullPath(path);
+                    zzz.In = new List<string>();
+                    good = File.Exists(path) && !zzz.In.Contains(path);
+                    if (good)
+                    {
+                        zzz.In.Add(path);
+                        Logger.WriteLine($"File added, {zzz.In.Count} total.");
+                    }
+                    else
+                        Logger.WriteLine("File doesn't exist or is already added.\n");
+                }
             }
             while (true);
-            _path = path;
-            Extract();
+            try
+            {
+                return zzz.Merge();
+            }
+            catch (PathTooLongException)
+            {
+                goto StartMergeMenu;
+            }
+            catch (InvalidDataException)
+            {
+                goto StartMergeMenu;
+            }
+            catch (ArgumentException )
+            {
+                goto StartMergeMenu;
+            }
         }
 
-        private static void WriteMenu()
+        private static void TestMenu()
         {
             string path;
             bool good = false;
             do
             {
-                Console.Write(
-                    "     Write zzz Screen\n" +
+                Logger.Write(
+                    "\n  Test Writes zzz Debug Screen\n" +
+                    "Warning! this is a test screen\n" +
+                    "This will keep making zzz files till it's done or errors\n" +
                     "Enter the path of files to go into out.zzz: ");
                 path = Console.ReadLine();
                 path = path.Trim('"');
                 path = path.Trim();
-                Console.WriteLine();
+                Logger.WriteLine();
+                path = GetFullPath(path);
                 good = Directory.Exists(path);
                 if (!good)
-                    Console.WriteLine("Directory doesn't exist\n");
+                    Logger.WriteLine("Directory doesn't exist\n");
+                else break;
+            }
+            while (true);
+            LoadSubDirs(path);
+            void LoadSubDirs(string dir)
+            {
+                Logger.WriteLine($"Testing: {dir}\n");
+                string[] subdirectoryEntries = Directory.GetDirectories(dir);
+                zzz.Path_ = dir;
+                try
+                {
+                    zzz.Write();
+                }
+                catch (PathTooLongException)
+                {
+                }
+                catch (InvalidDataException)
+                {
+                }
+                foreach (string subdir in subdirectoryEntries)
+                    LoadSubDirs(subdir);
+            }
+        }
+
+        //private const string zzz.Path = @"D:\ext";
+        private static string WriteMenu()
+        {
+        BeginWriteMenu:
+            string path;
+            bool good = false;
+            do
+            {
+                Logger.Write(
+                    "\n     Write zzz Screen\n" +
+                    "Enter the path of files to go into out.zzz: ");
+                path = Console.ReadLine();
+                path = path.Trim('"');
+                path = path.Trim();
+                Logger.WriteLine();
+                path = GetFullPath(path);
+                good = Directory.Exists(path);
+                if (!good)
+                    Logger.WriteLine("Directory doesn't exist\n");
                 else break;
             }
             while (true);
 
-            _path = path;
-            Write();
+            zzz.Path_ = path;
+            try
+            {
+                return zzz.Write();
+            }
+            catch (PathTooLongException)
+            {
+                goto BeginWriteMenu;
+            }
+            catch (InvalidDataException)
+            {
+                goto BeginWriteMenu;
+            }
         }
 
         #endregion Methods
 
-        #region Structs
+        #region Properties
 
-        /// <summary>
-        /// Part of header that contains info on the files.
-        /// </summary>
-        /// <see cref="https://github.com/myst6re/qt-zzz/blob/master/zzztoc.h"/>
-        public struct FileData
-        {
-            #region Fields
+        public static List<string> Args { get; private set; }
 
-            private byte[] filenamebytes;
-            public uint FilenameLength;
-            public ulong Offset;
-            public uint Size;
-
-            #endregion Fields
-
-            #region Properties
-
-            /// <summary>
-            /// Decode/Encode the filename string as bytes.
-            /// </summary>
-            /// <remarks>
-            /// Could be Ascii or UTF8, I see no special characters and the first like 127 of UTF8 is
-            /// the same as Ascii.
-            /// </remarks>
-            public string Filename
-            {
-                get => Encoding.UTF8.GetString(filenamebytes); set
-                {
-                    filenamebytes = Encoding.UTF8.GetBytes(value);
-                    FilenameLength = (uint)filenamebytes.Length;
-                }
-            }
-
-            public int TotalBytes => (int)(sizeof(uint) * 4 + FilenameLength);
-
-            #endregion Properties
-
-            #region Methods
-            //static readonly char[] invalid = Path.GetInvalidPathChars();
-            public static FileData Read(BinaryReader br)
-            {
-                FileData r = new FileData
-                {
-                    FilenameLength = br.ReadUInt32()
-                };
-                r.filenamebytes = br.ReadBytes((int)r.FilenameLength);
-                //var tmp = r.Filename.Where(x => invalid.Contains(x));
-                //if (tmp.Count() > 0)
-                //    throw new InvalidDataException($"String ({r.Filename}) contains invalid characters! ({tmp})");
-                r.Offset = br.ReadUInt64();
-                r.Size = br.ReadUInt32();
-                return r;
-            }
-
-            public static FileData Read(string path)
-            {
-                string safe = path;
-                safe = safe.Replace(_path, "");
-                safe = safe.Replace('/', '\\');
-                safe = safe.Trim('\\');
-                FileInfo fi = new FileInfo(path);
-                FileData r = new FileData
-                {
-                    Filename = safe,
-                    Size = (uint)fi.Length
-                };
-                return r;
-            }
-
-            public override string ToString() => $"({Filename}, {Offset}, {Size})";
-
-            public void Write(BinaryWriter bw)
-            {
-                bw.Write(FilenameLength);
-                bw.Write(filenamebytes);
-                bw.Write(Offset);
-                bw.Write(Size);
-            }
-
-            #endregion Methods
-        }
-
-        /// <summary>
-        /// Header for ZZZ file.
-        /// </summary>
-        public struct ZzzHeader
-        {
-            #region Fields
-
-            public uint Count;
-            public FileData[] Data;
-
-            #endregion Fields
-
-            #region Properties
-
-            public int TotalBytes => sizeof(uint) + (from x in Data select x.TotalBytes).Sum();
-
-            #endregion Properties
-
-            #region Methods
-
-            public static ZzzHeader Read(BinaryReader br)
-            {
-                ZzzHeader r = new ZzzHeader
-                {
-                    Count = br.ReadUInt32()
-                };
-                r.Data = new FileData[r.Count];
-                for (int i = 0; i < r.Count; i++)
-                    r.Data[i] = FileData.Read(br);
-                return r;
-            }
-
-            /// <summary>
-            /// This creates the header using the files in a directory.
-            /// </summary>
-            /// <param name="path"></param>
-            /// <returns></returns>
-            public static ZzzHeader Read(string path, out string[] f)
-            {
-                ZzzHeader r = new ZzzHeader();
-                f = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
-                r.Count = (uint)f.Length;
-                r.Data = new FileData[r.Count];
-
-                for (int i = 0; i < r.Count; i++)
-                    r.Data[i] = FileData.Read(f[i]);
-
-                uint pos = (uint)r.TotalBytes;
-
-                //cannot know the size of the header till i had loaded the rest of the data.
-                //so now we are updating the offset to be past the header. in the same order as the files.
-                for (int i = 0; i < r.Count; i++)
-                {
-                    r.Data[i].Offset = pos;
-                    pos += r.Data[i].Size;
-                }
-                return r;
-            }
-
-            public override string ToString() => $"({Count} files)";
-
-            public void Write(BinaryWriter bw)
-            {
-                bw.Write(Count);
-                foreach (FileData r in Data)
-                {
-                    Console.WriteLine($"Writing {r}");
-                    r.Write(bw);
-                }
-            }
-
-            #endregion Methods
-        }
-
-        #endregion Structs
+        #endregion Properties
     }
 }
