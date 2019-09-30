@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 namespace ZzzArchive
 {
 
-    public class Zzz
+    public partial class Zzz
     {
 
         #region Fields
@@ -45,7 +45,6 @@ namespace ZzzArchive
                 throw new InvalidDataException(msg);
             }
         }
-
         private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read, FileShare fs = FileShare.Read)
         {
             try
@@ -61,16 +60,16 @@ namespace ZzzArchive
             }
         }
 
-        private FileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite, FileShare fs = FileShare.Read)
+        private QueueFileStream GetFsWrite(ref string path, FileAccess fa = FileAccess.ReadWrite, FileShare fs = FileShare.Read)
         {
             string path_ = path;
-            FileStream fstream;
+            QueueFileStream fstream;
             int i = 0;
             do
             {
                 try
                 {
-                    fstream = File.Open(path, FileMode.Create, fa, fs);
+                    fstream = new QueueFileStream(path, FileMode.Create, fa, fs);
                 }
                 catch (IOException e)
                 {
@@ -410,7 +409,7 @@ namespace ZzzArchive
 
                 merged.head = Header.Merge(ref head._out, ref head._in, SkipWarning);
 
-                using (FileStream fs = GetFsWrite(ref _out))
+                using (QueueFileStream fs = GetFsWrite(ref _out))
                 using (merged.bw = new BinaryWriter(fs))
                 using (merged.br = new BinaryReader(fs))
                 {
@@ -450,7 +449,7 @@ namespace ZzzArchive
                                 "offset: {item.Offset}\n" +
                                 "size: {item.Size}"));
                         }
-                        fs.Seek(item.Offset, SeekOrigin.Begin);
+                        fs.SeekRead(item.Offset, SeekOrigin.Begin);
                         byte[] osha = null;
                         osha = HashTester.GetHash(merged.br.BaseStream, item.Size);
                         byte[] isha = null;
