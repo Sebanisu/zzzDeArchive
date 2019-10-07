@@ -1,13 +1,10 @@
-﻿using ZzzArchive;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace ZzzArchive
 {
-
     public partial class Zzz
     {
 
@@ -45,6 +42,7 @@ namespace ZzzArchive
                 throw new InvalidDataException(msg);
             }
         }
+
         private FileStream GetFsRead(string path, FileAccess fa = FileAccess.Read, FileShare fs = FileShare.Read)
         {
             try
@@ -84,6 +82,7 @@ namespace ZzzArchive
 
             return fstream;
         }
+
         private bool IsMainOrOther(string x) => IsMainOrOther(main, x) || IsMainOrOther(other, x);
 
         private void Merge(List<string> f1, string main, string arg = null)
@@ -191,6 +190,7 @@ namespace ZzzArchive
 
         private struct Merged
         {
+
             #region Fields
 
             public BinaryReader br;
@@ -198,26 +198,31 @@ namespace ZzzArchive
             public Header head;
 
             #endregion Fields
+
         }
 
         private struct TwoBR
         {
+
             #region Fields
 
             public BinaryReader[] _in;
             public BinaryReader _out;
 
             #endregion Fields
+
         }
 
         private struct TwoHeader
         {
+
             #region Fields
 
             public Header[] _in;
             public Header _out;
 
             #endregion Fields
+
         }
 
         #endregion Structs
@@ -360,6 +365,7 @@ namespace ZzzArchive
             Merge(f2, other, Other);
             return od;
         }
+
         public string Merge()
         {
             Logger.WriteLine($"Merging files:");
