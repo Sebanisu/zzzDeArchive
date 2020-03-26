@@ -127,4 +127,7 @@ If not the temp folder will open and the file will be located in there.
 If possible this will overwrite the existing files.
 </value>
   </data>
+  <data name="Form1_btnExecuteWrite_Click_Path_Too_Long_Exception" xml:space="preserve">
+    <value>Path Too Long Exception</value>
+  </data>
 </root>

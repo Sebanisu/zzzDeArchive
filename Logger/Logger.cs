@@ -8,39 +8,30 @@ namespace ZzzArchive
     {
         #region Fields
 
-        private static Logger self = new Logger();
-        private FileStream fs;
-        private StreamWriter sw;
-        private static ReaderWriterLock locker;
+        private static readonly Logger Self = new Logger();
+        private static ReaderWriterLock _locker;
+        private FileStream _fs;
+        private StreamWriter _sw;
 
         #endregion Fields
-
-        #region Destructors
-
-        ~Logger()
-        {
-            Dispose();
-        }
-
-        #endregion Destructors
 
         #region Constructors
 
         public Logger()
         {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "log.txt");
-            if(locker == null) locker = new ReaderWriterLock();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "log.txt");
+            if (_locker == null) _locker = new ReaderWriterLock();
             try
             {
-                locker.AcquireWriterLock(int.MaxValue);
+                _locker.AcquireWriterLock(int.MaxValue);
                 try
                 {
-                    fs = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-                    sw = new StreamWriter(fs);
+                    _fs = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+                    _sw = new StreamWriter(_fs);
                 }
                 finally
                 {
-                    locker.ReleaseWriterLock();
+                    _locker.ReleaseWriterLock();
                 }
             }
             catch (ApplicationException)
@@ -51,7 +42,18 @@ namespace ZzzArchive
 
         #endregion Constructors
 
+        #region Destructors
+
+        ~Logger()
+        {
+            Dispose();
+        }
+
+        #endregion Destructors
+
         #region Methods
+
+        public static void DisposeChildren() => Self?.Dispose();
 
         public static string Write(string @in, bool skipConsole = false, bool skipLog = false)
         {
@@ -61,14 +63,14 @@ namespace ZzzArchive
             {
                 try
                 {
-                    locker.AcquireWriterLock(int.MaxValue);
+                    _locker.AcquireWriterLock(int.MaxValue);
                     try
                     {
-                        self?.sw.Write(@in);
+                        Self?._sw.Write(@in);
                     }
                     finally
                     {
-                        locker.ReleaseWriterLock();
+                        _locker.ReleaseWriterLock();
                     }
                 }
                 catch (ApplicationException)
@@ -83,63 +85,51 @@ namespace ZzzArchive
         {
             if (!skipConsole)
                 Console.WriteLine(@in);
-            if (!skipLog)
+            if (skipLog) return @in;
+            try
             {
+                _locker.AcquireWriterLock(int.MaxValue);
                 try
                 {
-                    locker.AcquireWriterLock(int.MaxValue);
-                    try
-                    {
-                        self?.sw.WriteLine(@in);
-                    }
-                    finally
-                    {
-                        locker.ReleaseWriterLock();
-                    }
-                }
-                catch (ApplicationException)
-                {
-                    // The writer lock request timed out.
-                }
-            }
-            return @in;
-        }
-        public static string WriteLineThrow(string @in = "", bool skipConsole = false, bool skipLog = false)
-        {
-            throw new Exception(WriteLine(@in,skipConsole,skipLog));
-        }
-
-        public static void DisposeChildren()
-        {
-            self?.Dispose();
-            self = null;
-        }
-
-        public void Dispose()
-        {
-            if (sw != null && fs != null)
-            {
-                try
-                {
-                    locker.AcquireWriterLock(int.MaxValue);
-                    try
-                    {
-                        sw.Close();
-                    }
-                    finally
-                    {
-                        locker.ReleaseWriterLock();
-                    }
-                }
-                catch (ApplicationException)
-                {
-                    // The writer lock request timed out.
+                    Self?._sw.WriteLine(@in);
                 }
                 finally
                 {
-                    sw = null;
-                    fs = null;
+                    _locker.ReleaseWriterLock();
                 }
+            }
+            catch (ApplicationException)
+            {
+                // The writer lock request timed out.
+            }
+            return @in;
+        }
+
+        public static string WriteLineThrow(string @in = "", bool skipConsole = false, bool skipLog = false) => throw new Exception(WriteLine(@in, skipConsole, skipLog));
+
+        public void Dispose()
+        {
+            if (_sw == null || _fs == null) return;
+            try
+            {
+                _locker.AcquireWriterLock(int.MaxValue);
+                try
+                {
+                    _sw.Close();
+                }
+                finally
+                {
+                    _locker.ReleaseWriterLock();
+                }
+            }
+            catch (ApplicationException)
+            {
+                // The writer lock request timed out.
+            }
+            finally
+            {
+                _sw = null;
+                _fs = null;
             }
         }
 

@@ -184,7 +184,7 @@
             this.btnZZZextractInBrowse.TabIndex = 0;
             this.btnZZZextractInBrowse.Text = "&Browse";
             this.btnZZZextractInBrowse.UseVisualStyleBackColor = true;
-            this.btnZZZextractInBrowse.Click += new System.EventHandler(this.btnZZZextractInBrowse_Click);
+            this.btnZZZextractInBrowse.Click += new System.EventHandler(this.btnZZZExtractInBrowse_Click);
             // 
             // btnMainExtractIN
             // 
@@ -241,7 +241,7 @@
             this.btnOtherExtactIN.TabIndex = 5;
             this.btnOtherExtactIN.Text = "Se&t";
             this.btnOtherExtactIN.UseVisualStyleBackColor = true;
-            this.btnOtherExtactIN.Click += new System.EventHandler(this.btnOtherExtactIN_Click);
+            this.btnOtherExtactIN.Click += new System.EventHandler(this.btnOtherExtractIN_Click);
             // 
             // label4
             // 
@@ -283,7 +283,7 @@
             this.btnZZZextractOUTbrowse.TabIndex = 0;
             this.btnZZZextractOUTbrowse.Text = "B&rowse";
             this.btnZZZextractOUTbrowse.UseVisualStyleBackColor = true;
-            this.btnZZZextractOUTbrowse.Click += new System.EventHandler(this.btnZZZextractOUTbrowse_Click);
+            this.btnZZZextractOUTbrowse.Click += new System.EventHandler(this.btnZZZExtractOUTBrowse_Click);
             // 
             // txtZZZ_out
             // 
@@ -576,7 +576,7 @@
             this.btnExcuteMerge.TabIndex = 5;
             this.btnExcuteMerge.Text = "E&xecute";
             this.btnExcuteMerge.UseVisualStyleBackColor = true;
-            this.btnExcuteMerge.Click += new System.EventHandler(this.btnExcuteMerge_Click);
+            this.btnExcuteMerge.Click += new System.EventHandler(this.btnExecuteMerge_Click);
             // 
             // tabControl1
             // 

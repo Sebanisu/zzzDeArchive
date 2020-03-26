@@ -9,7 +9,6 @@ namespace ZzzArchive
     {
         #region Fields
 
-        private byte[] filenamebytes;
         public int FilenameLength;
         public long Offset;
 
@@ -17,6 +16,8 @@ namespace ZzzArchive
         /// Needs to be uint to support 4gb files? Though probably over kill.
         /// </summary>
         public uint Size;
+
+        private byte[] _fileNameBytes;
 
         #endregion Fields
 
@@ -31,10 +32,10 @@ namespace ZzzArchive
         /// </remarks>
         public string Filename
         {
-            get => Encoding.UTF8.GetString(filenamebytes); set
+            get => Encoding.UTF8.GetString(_fileNameBytes); set
             {
-                filenamebytes = Encoding.UTF8.GetBytes(value);
-                FilenameLength = filenamebytes.Length;
+                _fileNameBytes = Encoding.UTF8.GetBytes(value);
+                FilenameLength = _fileNameBytes.Length;
             }
         }
 
@@ -47,11 +48,11 @@ namespace ZzzArchive
         // readonly char[] invalid = Path.GetInvalidPathChars();
         public static FileData Read(BinaryReader br)
         {
-            FileData r = new FileData
+            var r = new FileData
             {
                 FilenameLength = br.ReadInt32()
             };
-            r.filenamebytes = br.ReadBytes(r.FilenameLength);
+            r._fileNameBytes = br.ReadBytes(r.FilenameLength);
             //var tmp = r.Filename.Where(x => invalid.Contains(x));
             //if (tmp.Count() > 0)
             //    throw new InvalidDataException($"String ({r.Filename}) contains invalid characters! ({tmp})");
@@ -60,17 +61,17 @@ namespace ZzzArchive
             return r;
         }
 
-        public static FileData Read(string path, string _path)
+        public static FileData Read(string oldPath, string newPath)
         {
-            string safe = path;
-            safe = safe.Replace(_path, "");
+            var safe = oldPath;
+            safe = safe.Replace(newPath, "");
             safe = safe.Replace('/', '\\');
             safe = safe.Trim('\\');
-            FileInfo fi = new FileInfo(path);
-            FileData r = new FileData
+            var fi = new FileInfo(oldPath);
+            var r = new FileData
             {
                 Filename = safe,
-                Size = checked((uint)fi.Length) // zzz file only supports indivitual files of size uint.
+                Size = checked((uint)fi.Length) // zzz file only supports individual files of size uint.
             };
             return r;
         }
@@ -80,7 +81,7 @@ namespace ZzzArchive
         public void Write(BinaryWriter bw)
         {
             bw.Write(FilenameLength);
-            bw.Write(filenamebytes);
+            bw.Write(_fileNameBytes);
             bw.Write(Offset);
             bw.Write(Size);
         }
