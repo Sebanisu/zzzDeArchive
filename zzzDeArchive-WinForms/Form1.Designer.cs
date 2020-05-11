@@ -80,6 +80,17 @@
             this.btnMergeInputBrowse = new System.Windows.Forms.Button();
             this.btnMergeInputRemove = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
+            this.label11 = new System.Windows.Forms.Label();
+            this.butReadDataBrowse = new System.Windows.Forms.Button();
+            this.txtReadDataZZZ = new System.Windows.Forms.TextBox();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.colOffset = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colPath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.butReadDataRead = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tpExtract.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -96,6 +107,10 @@
             this.tableLayoutPanel7.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel8.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.tableLayoutPanel9.SuspendLayout();
+            this.tableLayoutPanel10.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl
@@ -103,6 +118,7 @@
             this.tabControl.Controls.Add(this.tpExtract);
             this.tabControl.Controls.Add(this.tpWrite);
             this.tabControl.Controls.Add(this.tpMerge);
+            this.tabControl.Controls.Add(this.tabPage3);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
@@ -307,13 +323,13 @@
             this.lblZZZ_out.Size = new System.Drawing.Size(432, 33);
             this.lblZZZ_out.TabIndex = 2;
             // 
-            // btnExtractExecute
+            // btnExecuteExtract
             // 
             this.tableLayoutPanel1.SetColumnSpan(this.btnExecuteExtract, 2);
             this.btnExecuteExtract.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnExecuteExtract.Enabled = false;
             this.btnExecuteExtract.Location = new System.Drawing.Point(3, 337);
-            this.btnExecuteExtract.Name = "btnExtractExecute";
+            this.btnExecuteExtract.Name = "btnExecuteExtract";
             this.btnExecuteExtract.Size = new System.Drawing.Size(780, 78);
             this.btnExecuteExtract.TabIndex = 4;
             this.btnExecuteExtract.Text = "E&xecute";
@@ -526,13 +542,13 @@
             this.label8.Text = resources.GetString("label8.Text");
             this.label8.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
-            // btnExcuteWrite
+            // btnExecuteWrite
             // 
             this.tableLayoutPanel4.SetColumnSpan(this.btnExecuteWrite, 2);
             this.btnExecuteWrite.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnExecuteWrite.Enabled = false;
             this.btnExecuteWrite.Location = new System.Drawing.Point(3, 337);
-            this.btnExecuteWrite.Name = "btnExcuteWrite";
+            this.btnExecuteWrite.Name = "btnExecuteWrite";
             this.btnExecuteWrite.Size = new System.Drawing.Size(780, 78);
             this.btnExecuteWrite.TabIndex = 4;
             this.btnExecuteWrite.Text = "E&xecute";
@@ -759,6 +775,131 @@
             this.label10.Text = "Mod zzz files to be merged into the source file.";
             this.label10.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.tableLayoutPanel9);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(792, 424);
+            this.tabPage3.TabIndex = 3;
+            this.tabPage3.Text = "Read Data";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel9
+            // 
+            this.tableLayoutPanel9.AutoSize = true;
+            this.tableLayoutPanel9.ColumnCount = 1;
+            this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel9.Controls.Add(this.tableLayoutPanel10, 0, 0);
+            this.tableLayoutPanel9.Controls.Add(this.dataGridView1, 0, 1);
+            this.tableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel9.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel9.Name = "tableLayoutPanel9";
+            this.tableLayoutPanel9.RowCount = 2;
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.67943F));
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.32057F));
+            this.tableLayoutPanel9.Size = new System.Drawing.Size(786, 418);
+            this.tableLayoutPanel9.TabIndex = 0;
+            // 
+            // tableLayoutPanel10
+            // 
+            this.tableLayoutPanel10.ColumnCount = 4;
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 24.17219F));
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75.82781F));
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 97F));
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 98F));
+            this.tableLayoutPanel10.Controls.Add(this.label11, 0, 0);
+            this.tableLayoutPanel10.Controls.Add(this.butReadDataBrowse, 2, 0);
+            this.tableLayoutPanel10.Controls.Add(this.txtReadDataZZZ, 1, 0);
+            this.tableLayoutPanel10.Controls.Add(this.butReadDataRead, 3, 0);
+            this.tableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel10.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel10.Name = "tableLayoutPanel10";
+            this.tableLayoutPanel10.RowCount = 1;
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel10.Size = new System.Drawing.Size(780, 47);
+            this.tableLayoutPanel10.TabIndex = 0;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label11.Location = new System.Drawing.Point(3, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(135, 47);
+            this.label11.TabIndex = 0;
+            this.label11.Text = "Choose a ZZZ file:";
+            // 
+            // butReadDataBrowse
+            // 
+            this.butReadDataBrowse.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.butReadDataBrowse.Location = new System.Drawing.Point(587, 3);
+            this.butReadDataBrowse.Name = "butReadDataBrowse";
+            this.butReadDataBrowse.Size = new System.Drawing.Size(91, 41);
+            this.butReadDataBrowse.TabIndex = 1;
+            this.butReadDataBrowse.Text = "Browse";
+            this.butReadDataBrowse.UseVisualStyleBackColor = true;
+            this.butReadDataBrowse.Click += new System.EventHandler(this.butReadDataBrowse_Click);
+            // 
+            // txtReadDataZZZ
+            // 
+            this.txtReadDataZZZ.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtReadDataZZZ.Location = new System.Drawing.Point(144, 3);
+            this.txtReadDataZZZ.Multiline = true;
+            this.txtReadDataZZZ.Name = "txtReadDataZZZ";
+            this.txtReadDataZZZ.Size = new System.Drawing.Size(437, 41);
+            this.txtReadDataZZZ.TabIndex = 2;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colOffset,
+            this.colSize,
+            this.colPath});
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridView1.Location = new System.Drawing.Point(3, 56);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.ReadOnly = true;
+            this.dataGridView1.Size = new System.Drawing.Size(780, 359);
+            this.dataGridView1.TabIndex = 1;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            // 
+            // colOffset
+            // 
+            this.colOffset.HeaderText = "Offset";
+            this.colOffset.Name = "colOffset";
+            this.colOffset.ReadOnly = true;
+            // 
+            // colSize
+            // 
+            this.colSize.HeaderText = "Size";
+            this.colSize.Name = "colSize";
+            this.colSize.ReadOnly = true;
+            // 
+            // colPath
+            // 
+            this.colPath.HeaderText = "Path";
+            this.colPath.Name = "colPath";
+            this.colPath.ReadOnly = true;
+            // 
+            // butReadDataRead
+            // 
+            this.butReadDataRead.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.butReadDataRead.Location = new System.Drawing.Point(684, 3);
+            this.butReadDataRead.Name = "butReadDataRead";
+            this.butReadDataRead.Size = new System.Drawing.Size(93, 41);
+            this.butReadDataRead.TabIndex = 3;
+            this.butReadDataRead.Text = "Read";
+            this.butReadDataRead.UseVisualStyleBackColor = true;
+            this.butReadDataRead.Click += new System.EventHandler(this.butReadDataRead_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -796,6 +937,12 @@
             this.tabPage2.ResumeLayout(false);
             this.tableLayoutPanel8.ResumeLayout(false);
             this.tableLayoutPanel8.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            this.tableLayoutPanel9.ResumeLayout(false);
+            this.tableLayoutPanel10.ResumeLayout(false);
+            this.tableLayoutPanel10.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -853,6 +1000,17 @@
         private System.Windows.Forms.Button btnMergeInputBrowse;
         private System.Windows.Forms.Button btnMergeInputRemove;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel9;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button butReadDataBrowse;
+        private System.Windows.Forms.TextBox txtReadDataZZZ;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colOffset;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colSize;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colPath;
+        private System.Windows.Forms.Button butReadDataRead;
     }
 }
 

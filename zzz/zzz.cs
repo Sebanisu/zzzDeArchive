@@ -78,7 +78,20 @@ namespace ZzzArchive
 
         #region Methods
 
-        public string Extract()
+        public Header ReadHeader()
+        {
+            using (var fs = GetFsRead(In.First()))
+            {
+                using (var br = new BinaryReader(fs))
+                {
+                    var head = TestLength(Header.Read(br));
+                    Logger.WriteLine(head.ToString());
+                    return head;
+                }
+            }
+        }
+
+            public string Extract()
         {
             Logger.WriteLine($"Extracting {In.First()} to {Path}");
             using (var fs = GetFsRead(In.First()))
@@ -475,6 +488,7 @@ namespace ZzzArchive
         private Header TestLength(Header head)
         {
             var maxPathLength = head.MaxPathLength;
+            if (Path == null) return head;
             var str = $"Max path length of {System.IO.Path.GetFileName(In.First())}: {maxPathLength}\n" +
                       $"Dest path length: {Path.Length}\n" +
                       $"Total+1 ({Path.Length + maxPathLength + 1}) must be less than {MaxPath}\n" +
@@ -484,6 +498,7 @@ namespace ZzzArchive
             {
                 throw new PathTooLongException(Logger.WriteLine(str));
             }
+            
 
             Logger.WriteLine(str, true);
             return head;

@@ -38,6 +38,7 @@ namespace ZzzArchive
             _openFileDialogBrowse = new OpenFileDialog();
             if (GameLocation != null)
                 _openFileDialogBrowse.InitialDirectory = GameLocation;
+            ButClick(btnMainExtractIN, txtReadDataZZZ, "main.zzz");
             _openFileDialogBrowse.Filter = "FF8R ZZZ archives(*.zzz)|*.zzz";
             _openFileDialogBrowse.Title = "Choose";
             _openFileDialogBrowse.CheckFileExists = true;
@@ -448,5 +449,47 @@ namespace ZzzArchive
         private void txtZZZ_out_DragDrop(object sender, DragEventArgs e) => MultiTxtDragDrop(txtZZZ_out, e);
 
         #endregion Methods
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void butReadDataBrowse_Click(object sender, EventArgs e)
+        {
+            if (_openFileDialogBrowse.ShowDialog() == DialogResult.OK)
+            {
+                txtReadDataZZZ.Text = _openFileDialogBrowse.FileName;
+            }
+        }
+
+        private void butReadDataRead_Click(object sender, EventArgs e)
+        {
+
+
+            butReadDataBrowse.Enabled = false;
+            butReadDataRead.Enabled = false;
+            Application.DoEvents();
+            //try
+            //{
+                _zzz.In = new List<string> { Path.GetFullPath(txtReadDataZZZ.Text.Trim()) };
+
+                var head = _zzz.ReadHeader();
+                dataGridView1.Rows.Clear();
+                foreach (var dat in head.Data)
+                {
+                    dataGridView1.Rows.Add(dat.Offset, dat.Size, dat.Filename);
+                    Application.DoEvents();
+                }
+            //}
+            //catch (Exception err)
+            //{
+            //    Logger.WriteLine(err.Message);
+            //    Logger.WriteLine(txtReadDataZZZ.Text.Trim());
+            //    MessageBox.Show(err.Message, "Exception");
+            //}
+            butReadDataBrowse.Enabled = true;
+            butReadDataRead.Enabled = true;
+        }
     }
 }
