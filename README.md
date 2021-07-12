@@ -43,3 +43,19 @@ Optional Arguments:
 See similar project: [qt-zzz](https://github.com/myst6re/qt-zzz)
 
 Fourm link: [Qhimm](http://forums.qhimm.com/index.php?topic=19209.msg267708#msg267708)
+
+
+Building on Linux:
+```sh
+        wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb
+        sudo dpkg -i /tmp/packages-microsoft-prod.deb
+        sudo apt update
+        sudo apt-get install -y apt-transport-https
+        sudo apt-get install -y dotnet-sdk-5.0
+        sudo apt install gnupg ca-certificates
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+        echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+        sudo apt update
+        sudo apt install -y mono-devel
+        msbuild
+```
