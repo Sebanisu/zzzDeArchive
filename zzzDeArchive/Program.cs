@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
+using System.Xml.Linq;
 
 namespace ZzzArchive
 {
@@ -25,7 +27,7 @@ namespace ZzzArchive
 
         private static string ExtractMenu()
         {
-            StartExtractMenu:
+        StartExtractMenu:
             string path;
             bool good;
             const string title = "\n     Extract zzz Screen\n";
@@ -106,13 +108,7 @@ namespace ZzzArchive
         [SuppressMessage("ReSharper", "SwitchStatementHandlesSomeKnownEnumValuesWithDefault")]
         private static void Main(string[] args)
         {
-            Args = new List<string>(args);
-
-            for (var index = 0; index < Args.Count; index++)
-            {
-                var x = Args[index];
-                Args[index] = x.Trim('"');
-            }
+            Args = args.Select(x => x.Trim('"').Trim()).ToList();
 
             var ind = Args.FindIndex(x => x.Equals("-skipWarning", StringComparison.OrdinalIgnoreCase));
             if (ind >= 0)
@@ -120,6 +116,7 @@ namespace ZzzArchive
                 ZZZ.SkipWarning = true;
                 Args.RemoveAt(ind);
             }
+            var zzzArgs = Args.Where(arg => arg.EndsWith(".ZZZ", StringComparison.OrdinalIgnoreCase)).ToList();
             if ((Args.Count == 1 || Args.Count == 3) &&
                 (Args[0].Equals("-folderMerge", StringComparison.OrdinalIgnoreCase) ||
                 Args[0].Equals("-mergeFolder", StringComparison.OrdinalIgnoreCase)) &&
@@ -151,7 +148,7 @@ namespace ZzzArchive
                 {
                 }
             }
-            else if (Args.Count >= 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
+            else if (zzzArgs.Count >= 2 && File.Exists(zzzArgs[0] = GetFullPath(zzzArgs[0])))
             {
                 //merge
                 ZZZ.Path = Args[0];
@@ -159,8 +156,8 @@ namespace ZzzArchive
                 for (var i = 1; i < Args.Count; i++)
                 {
                     Args[i] = GetFullPath(Args[i]);
-                    if (File.Exists(Args[i]) && !ZZZ.In.Contains(Args[i]))
-                        ZZZ.In.Add(Args[i]);
+                    if (File.Exists(zzzArgs[i]) && !ZZZ.In.Contains(zzzArgs[i]))
+                        ZZZ.In.Add(zzzArgs[i]);
                     else
                         Logger.WriteLine($"({Args[i]}) doesn't exist or is already added.\n");
                 }
@@ -179,8 +176,10 @@ namespace ZzzArchive
                 {
                 }
             }
-            else if (Args.Count == 2 && File.Exists(Args[0] = GetFullPath(Args[0])))
-            {
+            else if (Args.Count == 2 && File.Exists(Args[0] = GetFullPath(Args[0])) 
+                && Args[0].EndsWith(".ZZZ", StringComparison.OrdinalIgnoreCase) 
+                && !Args[1].EndsWith(".ZZZ", StringComparison.OrdinalIgnoreCase))
+            { //extract
                 Args[1] = GetFullPath(Args[1]);
                 Directory.CreateDirectory(Args[1]);
                 ZZZ.In = new List<string>();
@@ -316,7 +315,7 @@ namespace ZzzArchive
 
         private static string MergeMenu()
         {
-            StartMergeMenu:
+        StartMergeMenu:
             string path;
             bool good;
             const string title = "\n     Merge zzz Screen\n";
@@ -454,7 +453,7 @@ namespace ZzzArchive
         //private const string zzz.Path = @"D:\ext";
         private static string WriteMenu()
         {
-            BeginWriteMenu:
+        BeginWriteMenu:
             string path;
             do
             {
